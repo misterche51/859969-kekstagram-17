@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александр Черных](https://up.htmlacademy.ru/javascript/17/user/859969).
-* Наставник: `Неизвестно`.
+* Наставник: [Иван Чернобук](https://htmlacademy.ru/profile/id237614).
 
 ---
 
