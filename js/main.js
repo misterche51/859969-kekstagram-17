@@ -2,23 +2,30 @@
 
 // константа с количеством фотографий на главной
 var COUNT_OF_PHOTOS = 25;
-// пустой массив для ссылоку к фотографиям
-var urls = [];
+
+// объект, описывающий диапазон количества лайков под каждой фотографией
+var LIKES_VALUE = {
+  MIN: 15,
+  MAX: 100
+};
+
+// объект, описывающий диапазон количества комментариев под каждой фотографией
+var COMMENTS_VALUE = {
+  MIN: 1,
+  MAX: 8
+};
+
+// объект,  дописывающийиапазон индексов для ссылок на фото аватаров комментирующих пользователей
+var AVATAR_INDEX = {
+  MIN: 1,
+  MAX: 6
+};
+
 
 // ищем произвольное числов заданном диапазоне
 function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-// получаем массив, заполненный ссылками на фото в виде строк
-function getArrayOfPhotoLinks(count) {
-  for (var i = 1; i <= count; i++) {
-    urls.push('photos/' + i + '.jpg');
-  }
-  return urls;
-}
-// вызываем функцию, чтобы заполнить массив с сcылками
-getArrayOfPhotoLinks(COUNT_OF_PHOTOS);
 
 // массив имен
 var names = ['Ватерпежекосма', 'Кукуцаполь', 'Перкосрак', 'Тролебузина', 'Персострат',
@@ -31,9 +38,6 @@ var getName = function (arrOfNames) {
   return arrOfNames[getRandomNumber(0, arrOfNames.length - 1)];
 };
 
-// задаем количество лайков
-var likes = getRandomNumber(15, 100);
-
 // массив с комментариями
 var comments = ['Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -44,30 +48,55 @@ var comments = ['Всё отлично!',
 
 // создаем рандомный комментрий
 var getRandomMessage = function (arr) {
-  for (var i = 0; i < arr.length; i++) {
-    var message = arr[i] + ' ' + arr[getRandomNumber(i, arr.length - 1)];
-    // вообще функция у меня в цикле возвращала сообщение, но из-за линтера пришлось вывести ее из цикла
-  }
-  return message;
+  return arr[getRandomNumber(0, arr.length - 1)];
 };
 
-// ниже я начинал готовить шаблончик для объектов, но мне его тоже рпишлось закомменитровать и повызывать функции ниже, чтобы линтер пропустил
+var getArrayOfComments = function () {
+  var arrayOfComments = [];
+  for (var i = 1; i <= getRandomNumber(COMMENTS_VALUE.MIN, COMMENTS_VALUE.MAX); i++) {
+    var commentItem = {
+      avatar: 'img/avatar-' + getRandomNumber(AVATAR_INDEX.MIN, AVATAR_INDEX.MAX) + '.svg',
+      name: getName(names),
+      message: getRandomMessage(comments)
+    };
+    arrayOfComments.push(commentItem);
+  }
+  return arrayOfComments;
+};
 
-// var photo = {
-//   name: getName(names),
-//   comment: getRandomMessage(comments),
-//   likes: likes,
-//   // link
-// };
+// функция для заполнения массива необходимыми данными
+var createGallery = function (countOfPhotos) {
+  var gallery = [];
+  for (var i = 1; i <= countOfPhotos; i++) {
+    var photo = {
+      url: 'photos/' + i + '.jpg',
+      likes: getRandomNumber(LIKES_VALUE.MIN, LIKES_VALUE.MAX),
+      comments: getArrayOfComments()
+    };
+    gallery.push(photo);
+  }
+  return gallery;
+};
 
-likes();
-getName(names);
-getRandomMessage(comments);
 
-// -------------------------
-// пустой массив для объектов фотографий
-// var getArrayOfObjects = function (count) {
-//   for (var i = 1; i < count; i++) {
-//   }
-//   return photos;
-// };
+// начинаю работу с DOM
+
+// находим контейнер, куда будем вставлять нагенерированные данные
+var container = document.querySelector('.pictures');
+
+// находим шаблон
+var pictureTemplate = document.querySelector('#picture')
+    .content
+    .querySelector('.picture');
+
+for (var i = 0; i < createGallery(COUNT_OF_PHOTOS).length; i++) {
+// сначала наполняю шаблон-заготовку данными
+  pictureTemplate.querySelector('.picture__img').src = createGallery(COUNT_OF_PHOTOS)[i].url;
+  pictureTemplate.querySelector('.picture__comments').textContent = createGallery(COUNT_OF_PHOTOS)[i].comments.length;
+  pictureTemplate.querySelector('.picture__likes').textContent = createGallery(COUNT_OF_PHOTOS)[i].likes;
+  // далее клонирую шаблон
+  var newPicture = pictureTemplate.cloneNode(true);
+  // вставляю его в приготовленный контейнер
+  container.appendChild(newPicture);
+}
+
