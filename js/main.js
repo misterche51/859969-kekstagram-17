@@ -78,6 +78,9 @@ var createGallery = function (countOfPhotos) {
   return gallery;
 };
 
+// вызываем функцию и записываем ее значение для дальнейшенго использования
+var photos = createGallery(COUNT_OF_PHOTOS);
+
 
 // начинаю работу с DOM
 
@@ -89,14 +92,23 @@ var pictureTemplate = document.querySelector('#picture')
     .content
     .querySelector('.picture');
 
-for (var i = 0; i < createGallery(COUNT_OF_PHOTOS).length; i++) {
-// сначала наполняю шаблон-заготовку данными
-  pictureTemplate.querySelector('.picture__img').src = createGallery(COUNT_OF_PHOTOS)[i].url;
-  pictureTemplate.querySelector('.picture__comments').textContent = createGallery(COUNT_OF_PHOTOS)[i].comments.length;
-  pictureTemplate.querySelector('.picture__likes').textContent = createGallery(COUNT_OF_PHOTOS)[i].likes;
-  // далее клонирую шаблон
-  var newPicture = pictureTemplate.cloneNode(true);
-  // вставляю его в приготовленный контейнер
-  container.appendChild(newPicture);
-}
+// создаем функцию, которая будет создавать фрагмент и наполнять его заполненными клонами
+var createFragment = function () {
+  var newFragment = document.createDocumentFragment();
+  for (var i = 0; i < photos.length; i++) {
+    pictureTemplate.querySelector('.picture__img').src = createGallery(COUNT_OF_PHOTOS)[i].url;
+    pictureTemplate.querySelector('.picture__comments').textContent = createGallery(COUNT_OF_PHOTOS)[i].comments.length;
+    pictureTemplate.querySelector('.picture__likes').textContent = createGallery(COUNT_OF_PHOTOS)[i].likes;
+    var newPicture = pictureTemplate.cloneNode(true);
+    newFragment.appendChild(newPicture);
+  }
+  return newFragment;
+};
+
+// присвоем результат вызоыва функции в переменную для дальнейшей вставки в html
+var fragment = createFragment(photos);
+
+// пушим фрагмент в документ
+container.appendChild(fragment);
+
 
