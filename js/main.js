@@ -78,9 +78,6 @@ var createGallery = function (countOfPhotos) {
   return gallery;
 };
 
-// вызываем функцию и записываем ее значение для дальнейшенго использования
-var photos = createGallery(COUNT_OF_PHOTOS);
-
 
 // начинаю работу с DOM
 
@@ -93,19 +90,22 @@ var pictureTemplate = document.querySelector('#picture')
     .querySelector('.picture');
 
 // создаем функцию, которая будет создавать фрагмент и наполнять его заполненными клонами
-var createFragment = function () {
+var createFragment = function (items) {
   var newFragment = document.createDocumentFragment();
-  for (var i = 0; i < photos.length; i++) {
-    pictureTemplate.querySelector('.picture__img').src = createGallery(COUNT_OF_PHOTOS)[i].url;
-    pictureTemplate.querySelector('.picture__comments').textContent = createGallery(COUNT_OF_PHOTOS)[i].comments.length;
-    pictureTemplate.querySelector('.picture__likes').textContent = createGallery(COUNT_OF_PHOTOS)[i].likes;
+  for (var i = 0; i < items.length; i++) {
     var newPicture = pictureTemplate.cloneNode(true);
+    newPicture.querySelector('.picture__img').src = items[i].url;
+    newPicture.querySelector('.picture__comments').textContent = items[i].comments.length;
+    newPicture.querySelector('.picture__likes').textContent = items[i].likes;
     newFragment.appendChild(newPicture);
   }
   return newFragment;
 };
 
-// присвоем результат вызоыва функции в переменную для дальнейшей вставки в html
+// вызываем функцию и записываем ее значение для дальнейшенго использования
+var photos = createGallery(COUNT_OF_PHOTOS);
+
+// присвоим результат вызова функции в переменную для дальнейшей вставки в html
 var fragment = createFragment(photos);
 
 // пушим фрагмент в документ
