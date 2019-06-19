@@ -1,44 +1,57 @@
 'use strict';
 
-// константа с количеством фотографий на главной
+/** количество генерируемых объектов-фото */
 var COUNT_OF_PHOTOS = 25;
 
-// объект, описывающий диапазон количества лайков под каждой фотографией
+/**
+ * @description объект со значениями масштаба для фото
+ * @prop {Number} MIN -- минимальный предел
+ * @prop {Number} MAX -- максимальный предел
+ */
+var SCALEOFPHOTO = {
+  MIN: 25,
+  MAX: 100
+};
+/** шаг изменения масштаба */
+var STEPOFSCALE = 25;
+
+/**
+ * @description объект с диапазоном количество лайков
+ * @prop {Number} MIN -- минимальный предел
+ * @prop {Number} MAX -- максимальный предел
+ */
 var LIKES_VALUE = {
   MIN: 15,
   MAX: 100
 };
 
-// объект, описывающий диапазон количества комментариев под каждой фотографией
+/**
+ * @description объект с диапазоном количества комментариев под фото
+ * @prop {Number} MIN -- минимальный предел
+ * @prop {Number} MAX -- максимальный предел
+ */
 var COMMENTS_VALUE = {
   MIN: 1,
   MAX: 8
 };
 
-// объект,  дописывающийиапазон индексов для ссылок на фото аватаров комментирующих пользователей
+/**
+ * @description объект с диапазоном индексов для ссылок на фото аватаров комментирующих пользователей
+ * @prop {Number} MIN -- минимальный предел
+ * @prop {Number} MAX -- максимальный предел
+ */
 var AVATAR_INDEX = {
   MIN: 1,
   MAX: 6
 };
 
-
-// ищем произвольное числов заданном диапазоне
-function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// массив имен
+/** names - массив имен для магов */
 var names = ['Ватерпежекосма', 'Кукуцаполь', 'Перкосрак', 'Тролебузина', 'Персострат',
   'Нисерха', 'Гус', 'Феопент', 'Сисиний', 'Амфилохий',
   'Ексакустодиан', 'Еразм', 'Логин', 'Никострат', 'Пугилий',
   'Шахроза', 'Валенсия', 'Олимпиада', 'Алладин', 'Кришна'];
 
-// получаем произвольное имя из массива names, обрабатывая его рандомизатором
-var getName = function (arrOfNames) {
-  return arrOfNames[getRandomNumber(0, arrOfNames.length - 1)];
-};
-
-// массив с комментариями
+/** comments - массив с комментариями */
 var comments = ['Всё отлично!',
   'В целом всё неплохо. Но не всё.',
   'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
@@ -46,7 +59,32 @@ var comments = ['Всё отлично!',
   'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
 
-// создаем рандомный комментрий
+
+/**
+ * @description Функция-рандомизатор
+ * @param {number} min минимальное значение
+ * @param {number} max максимальное значение
+ * @return {number} любое целое число из заданного диапазона
+ * */
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * @description функция берет массив и возвращает рандомную строку с именем мага
+ * @param {Array} arrOfNames -- ожидается заранее подготовленный массив имен
+ * @return {String} имя мага
+ */
+var getName = function (arrOfNames) {
+  return arrOfNames[getRandomNumber(0, arrOfNames.length - 1)];
+};
+
+
+/**
+ * @description функция берет массив и возвращает рандомную строку с комментарием
+ * @param {arr} arr -- предполагается массив с комментариями
+ * @return {String} рандомный комментарий
+ */
 var getRandomMessage = function (arr) {
   return arr[getRandomNumber(0, arr.length - 1)];
 };
@@ -111,4 +149,105 @@ var fragment = createFragment(photos);
 // пушим фрагмент в документ
 container.appendChild(fragment);
 
+/** input type="file" для загрузки изображений в сервис */
+var inputPhoto = document.querySelector('#upload-file');
+/** div с элементами для редактирования загруженного файла */
+var photoCorrectionForm = document.querySelector('.img-upload__overlay');
+/** кнопка закрыть окно */
+var buttonClose = photoCorrectionForm.querySelector('.img-upload__cancel');
 
+/** загруженная фотка */
+var image = photoCorrectionForm.querySelector('.img-upload__preview ');
+/** @description при вызове открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
+var openCorrection = function () {
+  photoCorrectionForm.classList.remove('hidden');
+  document.addEventListener('keydown', escapeKeydownHandler);
+};
+/** @description функция закрытия при нажатии на esc
+ * @param {evt} evt
+*/
+var escapeKeydownHandler = function (evt) {
+  if (evt.keyCode === 27) {
+    closeCorrection();
+  }
+};
+/** @description при вызове закрывает окно редактирования фотографии */
+var closeCorrection = function () {
+  photoCorrectionForm.classList.add('hidden');
+  inputPhoto.value = null;
+};
+
+
+/** input type="text" отоборажает масштаб в % */
+var scaleValue = photoCorrectionForm.querySelector('.scale__control--value');
+/** button type="button" уменьшает масштаб */
+var scaleControlSmaller = photoCorrectionForm.querySelector('.scale__control--smaller');
+/** button type="button" увеличивает масштаб */
+var scaleControlBigger = photoCorrectionForm.querySelector('.scale__control--bigger');
+
+/** @description  изменяет значение стилей, меняя масштаб фото*/
+var scalingPhoto = function () {
+  image.style.transform = 'scale(' + parseInt(scaleValue.value, 10) / 100 + ')';
+};
+
+/** @description уменьшает масштаб у фото, отображая значение в инпуте */
+var changeScaleSmaller = function () {
+  if (scaleValue.value !== SCALEOFPHOTO.MIN + '%') {
+    scaleValue.value = parseInt(scaleValue.value, 10) - STEPOFSCALE + '%';
+    scalingPhoto();
+  }
+};
+
+/** @description уменьшает масштаб у фото, отображая значение в инпуте */
+var changeScaleBigger = function () {
+  if (scaleValue.value !== SCALEOFPHOTO.MAX + '%') {
+    scaleValue.value = parseInt(scaleValue.value, 10) + STEPOFSCALE + '%';
+    scalingPhoto();
+  }
+};
+
+inputPhoto.addEventListener('change', openCorrection);
+buttonClose.addEventListener('click', closeCorrection);
+scaleControlSmaller.addEventListener('click', changeScaleSmaller);
+scaleControlBigger.addEventListener('click', changeScaleBigger);
+
+/** ul - список фильтров для изменения фото */
+var filterList = photoCorrectionForm.querySelector('.effects__list');
+/** шкала изменения глубины фильтрации */
+var filterRange = photoCorrectionForm.querySelector('.img-upload__effect-level');
+/** функция сбрасывает фильтры на изображении */
+var clearFilterList = function () {
+  image.classList = 'img-upload__preview';
+};
+
+/** функция в зависимости от элемента, на котором было совершено инициирующее действие меняет стиль (накладывает фильтр) у фотографии
+ * @param {evt} evt
+*/
+var changer = function (evt) {
+  if (evt.target.classList.contains('effects__preview--chrome')) {
+    clearFilterList();
+    image.classList.add('effects__preview--chrome');
+  }
+  if (evt.target.classList.contains('effects__preview--sepia')) {
+    clearFilterList();
+    image.classList.add('effects__preview--sepia');
+  }
+  if (evt.target.classList.contains('effects__preview--marvin')) {
+    clearFilterList();
+    image.classList.add('effects__preview--marvin');
+  }
+  if (evt.target.classList.contains('effects__preview--phobos')) {
+    clearFilterList();
+    image.classList.add('effects__preview--phobos');
+  }
+  if (evt.target.classList.contains('effects__preview--heat')) {
+    clearFilterList();
+    image.classList.add('effects__preview--heat');
+  }
+  if (evt.target.classList.contains('effects__preview--none')) {
+    clearFilterList();
+    filterRange.classList.add('hidden');
+  }
+};
+
+filterList.addEventListener('click', changer);
