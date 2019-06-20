@@ -8,12 +8,12 @@ var COUNT_OF_PHOTOS = 25;
  * @prop {Number} MIN -- минимальный предел
  * @prop {Number} MAX -- максимальный предел
  */
-var SCALEOFPHOTO = {
+var SCALE_OF_PHOTO = {
   MIN: 25,
   MAX: 100
 };
 /** шаг изменения масштаба */
-var STEPOFSCALE = 25;
+var STEP_OF_SCALE = 25;
 
 /**
  * @description объект с диапазоном количество лайков
@@ -155,12 +155,12 @@ var inputPhoto = document.querySelector('#upload-file');
 var photoCorrectionForm = document.querySelector('.img-upload__overlay');
 /** кнопка закрыть окно */
 var buttonClose = photoCorrectionForm.querySelector('.img-upload__cancel');
-
-/** загруженная фотка */
+/** обертка на загруженную фотку */
 var image = photoCorrectionForm.querySelector('.img-upload__preview ');
 /** @description при вызове открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
 var openCorrection = function () {
   photoCorrectionForm.classList.remove('hidden');
+  photoCorrectionForm.addEventListener('click', changer);
   document.addEventListener('keydown', escapeKeydownHandler);
 };
 /** @description функция закрытия при нажатии на esc
@@ -175,6 +175,7 @@ var escapeKeydownHandler = function (evt) {
 var closeCorrection = function () {
   photoCorrectionForm.classList.add('hidden');
   inputPhoto.value = null;
+  document.removeEventListener('keydown', escapeKeydownHandler);
 };
 
 
@@ -191,28 +192,26 @@ var scalingPhoto = function () {
 };
 
 /** @description уменьшает масштаб у фото, отображая значение в инпуте */
-var changeScaleSmaller = function () {
-  if (scaleValue.value !== SCALEOFPHOTO.MIN + '%') {
-    scaleValue.value = parseInt(scaleValue.value, 10) - STEPOFSCALE + '%';
+var scaleControlSmallerClickHandler = function () {
+  if (scaleValue.value !== SCALE_OF_PHOTO.MIN + '%') {
+    scaleValue.value = parseInt(scaleValue.value, 10) - STEP_OF_SCALE + '%';
     scalingPhoto();
   }
 };
 
 /** @description уменьшает масштаб у фото, отображая значение в инпуте */
-var changeScaleBigger = function () {
-  if (scaleValue.value !== SCALEOFPHOTO.MAX + '%') {
-    scaleValue.value = parseInt(scaleValue.value, 10) + STEPOFSCALE + '%';
+var scaleControlBiggerClickHandler = function () {
+  if (scaleValue.value !== SCALE_OF_PHOTO.MAX + '%') {
+    scaleValue.value = parseInt(scaleValue.value, 10) + STEP_OF_SCALE + '%';
     scalingPhoto();
   }
 };
 
 inputPhoto.addEventListener('change', openCorrection);
 buttonClose.addEventListener('click', closeCorrection);
-scaleControlSmaller.addEventListener('click', changeScaleSmaller);
-scaleControlBigger.addEventListener('click', changeScaleBigger);
+scaleControlSmaller.addEventListener('click', scaleControlSmallerClickHandler);
+scaleControlBigger.addEventListener('click', scaleControlBiggerClickHandler);
 
-/** ul - список фильтров для изменения фото */
-var filterList = photoCorrectionForm.querySelector('.effects__list');
 /** шкала изменения глубины фильтрации */
 var filterRange = photoCorrectionForm.querySelector('.img-upload__effect-level');
 /** функция сбрасывает фильтры на изображении */
@@ -220,28 +219,42 @@ var clearFilterList = function () {
   image.classList = 'img-upload__preview';
 };
 
+// /**
+//  * @description считает отношение значения координат по x у мышки в момент к ширине dom-эелемента, округляет до сотых
+//  * @param {evt} evt
+//  */
+// var checkProportions = function (evt) {
+//   (evt.offsetX / filterRange.offsetWidth).toFixed(2);
+// };
+
+
 /** функция в зависимости от элемента, на котором было совершено инициирующее действие меняет стиль (накладывает фильтр) у фотографии
  * @param {evt} evt
 */
 var changer = function (evt) {
   if (evt.target.classList.contains('effects__preview--chrome')) {
     clearFilterList();
+    filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--chrome');
   }
   if (evt.target.classList.contains('effects__preview--sepia')) {
     clearFilterList();
+    filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--sepia');
   }
   if (evt.target.classList.contains('effects__preview--marvin')) {
     clearFilterList();
+    filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--marvin');
   }
   if (evt.target.classList.contains('effects__preview--phobos')) {
     clearFilterList();
+    filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--phobos');
   }
   if (evt.target.classList.contains('effects__preview--heat')) {
     clearFilterList();
+    filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--heat');
   }
   if (evt.target.classList.contains('effects__preview--none')) {
@@ -249,5 +262,3 @@ var changer = function (evt) {
     filterRange.classList.add('hidden');
   }
 };
-
-filterList.addEventListener('click', changer);
