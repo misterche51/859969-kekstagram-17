@@ -89,6 +89,12 @@ var getRandomMessage = function (arr) {
   return arr[getRandomNumber(0, arr.length - 1)];
 };
 
+/**
+ * @description создается массив объектов,
+ * каждый из которых содержит данные о пользователе,
+ * оставившем комментарий (имя; аватар), и сам комментарий
+ * @return {Array} массив объектов
+ */
 var getArrayOfComments = function () {
   var arrayOfComments = [];
   for (var i = 1; i <= getRandomNumber(COMMENTS_VALUE.MIN, COMMENTS_VALUE.MAX); i++) {
@@ -121,12 +127,10 @@ var createGallery = function (countOfPhotos) {
 
 // находим контейнер, куда будем вставлять нагенерированные данные
 var container = document.querySelector('.pictures');
-
 // находим шаблон
 var pictureTemplate = document.querySelector('#picture')
     .content
     .querySelector('.picture');
-
 // создаем функцию, которая будет создавать фрагмент и наполнять его заполненными клонами
 var createFragment = function (items) {
   var newFragment = document.createDocumentFragment();
@@ -142,10 +146,8 @@ var createFragment = function (items) {
 
 // вызываем функцию и записываем ее значение для дальнейшенго использования
 var photos = createGallery(COUNT_OF_PHOTOS);
-
 // присвоим результат вызова функции в переменную для дальнейшей вставки в html
 var fragment = createFragment(photos);
-
 // пушим фрагмент в документ
 container.appendChild(fragment);
 
@@ -155,15 +157,7 @@ var inputPhoto = document.querySelector('#upload-file');
 var photoCorrectionForm = document.querySelector('.img-upload__overlay');
 /** кнопка закрыть окно */
 var buttonClose = photoCorrectionForm.querySelector('.img-upload__cancel');
-/** обертка на загруженную фотку */
-var image = photoCorrectionForm.querySelector('.img-upload__preview ');
-/** @description при вызове открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
-var openCorrection = function () {
-  photoCorrectionForm.classList.remove('hidden');
-  photoCorrectionForm.addEventListener('click', changer);
-  document.addEventListener('keydown', escapeKeydownHandler);
-};
-/** @description функция закрытия при нажатии на esc
+/** закрытие при нажатии на esc
  * @param {evt} evt
 */
 var escapeKeydownHandler = function (evt) {
@@ -171,13 +165,23 @@ var escapeKeydownHandler = function (evt) {
     closeCorrection();
   }
 };
-/** @description при вызове закрывает окно редактирования фотографии */
+/** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
+var openCorrection = function () {
+  photoCorrectionForm.classList.remove('hidden');
+  filterList.addEventListener('change', filterHandler);
+  filterPin.addEventListener('mouseup', filterPinMouseupHandler);
+  document.addEventListener('keydown', escapeKeydownHandler);
+};
+/** закрывает окно редактирования фотографии */
 var closeCorrection = function () {
   photoCorrectionForm.classList.add('hidden');
   inputPhoto.value = null;
+  filterList.addEventListener('change', filterHandler);
+  filterPin.removeEventListener('mouseup', filterPinMouseupHandler);
   document.removeEventListener('keydown', escapeKeydownHandler);
 };
 
+// блок масштабирования фотографии
 
 /** input type="text" отоборажает масштаб в % */
 var scaleValue = photoCorrectionForm.querySelector('.scale__control--value');
@@ -186,12 +190,12 @@ var scaleControlSmaller = photoCorrectionForm.querySelector('.scale__control--sm
 /** button type="button" увеличивает масштаб */
 var scaleControlBigger = photoCorrectionForm.querySelector('.scale__control--bigger');
 
-/** @description  изменяет значение стилей, меняя масштаб фото*/
+/** изменяет значение стилей, меняя масштаб фото*/
 var scalingPhoto = function () {
   image.style.transform = 'scale(' + parseInt(scaleValue.value, 10) / 100 + ')';
 };
 
-/** @description уменьшает масштаб у фото, отображая значение в инпуте */
+/** уменьшает масштаб у фото, отображая значение в инпуте */
 var scaleControlSmallerClickHandler = function () {
   if (scaleValue.value !== SCALE_OF_PHOTO.MIN + '%') {
     scaleValue.value = parseInt(scaleValue.value, 10) - STEP_OF_SCALE + '%';
@@ -212,108 +216,91 @@ buttonClose.addEventListener('click', closeCorrection);
 scaleControlSmaller.addEventListener('click', scaleControlSmallerClickHandler);
 scaleControlBigger.addEventListener('click', scaleControlBiggerClickHandler);
 
+// блок работы с фильтрами
+
 /** шкала изменения глубины фильтрации */
 var filterRange = photoCorrectionForm.querySelector('.img-upload__effect-level');
-
-
-// /**
-//  * @description считает отношение значения координат по x у мышки в момент к ширине dom-эелемента, округляет до сотых
-//  * @param {evt} evt
-//  */
-// var checkProportions = function (evt) {
-//   (evt.offsetX / filterRange.offsetWidth).toFixed(2);
-// };
-
-/** стандартное значеине value у input.effect-level__value */
-var FILTER_DEFAULT_VALUE = 100;
-
-/** сбрасывает фильтр в дефолтное значение */
-var resetFilterValue = function () {
-  filterValue.setAttribute('value', FILTER_DEFAULT_VALUE);
-};
-
-/** функция сбрасывает фильтры на изображении */
-var clearFilterList = function () {
-  image.classList = 'img-upload__preview';
-};
-
-/** блок функций для сброса фильтров в дефолт */
-var resetFilter = function () {
-  clearFilterList();
-  resetFilterValue();
-  imageContent.removeAttribute('style');
-};
-
-/** img загруженной фото */
-var imageContent = image.querySelector('img');
-
-
 /** div - поплавок */
 var filterPin = photoCorrectionForm.querySelector('.effect-level__pin');
-/** инпут с value - значение глубины фильтра */
+/** input с value - значение глубины фильтра */
 var filterValue = photoCorrectionForm.querySelector('.effect-level__value');
+/** стандартное значеине value у input.effect-level__value */
+var FILTER_DEFAULT_VALUE = 100;
+/** ul-список, хранящий в себе inputы выбора фильтров */
+var filterList = photoCorrectionForm.querySelector('.effects__list');
+/** div с фото */
+var image = photoCorrectionForm.querySelector('.img-upload__preview ');
+/** переменная хранит название фильтра */
+var currentEffectName = null;
+
+/** сбрасывает значение фильтра к стандартному */
+var filterValueReset = function () {
+  filterValue.value = FILTER_DEFAULT_VALUE;
+};
+/** убирает все лишние классы с фото */
+var imageClassListReset = function () {
+  image.classList = 'img-upload__preview';
+};
+/** удаляет стиль фильтра у фото */
+var imageInlineStyleDelete = function () {
+  image.removeAttribute('style');
+};
+
+/** общий сброс стилей с фото */
+var filterReboot = function () {
+  filterValueReset();
+  imageClassListReset();
+  imageInlineStyleDelete();
+};
 
 /**
- * @description считает отношение значения координат по x у мышки в момент к ширине dom-эелемента, округляет до сотых
- * @param {evt} evt
+ * в зависимости от того, какой фильтр (input) был выбран,
+ * блоку image присваивается соответствующий класс, а также показывается или нет (блок с if)
+ * шкала глубины фильтрации
+ * @param {evt} evt предполагается change на input type=radio
  */
-var checkProportions = function (evt) {
-  var prop = (evt.target.offsetLeft / evt.target.parentNode.offsetWidth).toFixed(2);
-  filterValue.setAttribute('value', prop * 100);
-  if (image.classList.contains('effects__preview--chrome')) {
-    imageContent.style.filter = 'grayscale()';
-  }
-  if (image.classList.contains('effects__preview--sepia')) {
-    imageContent.style.filter = 'sepia()';
-  }
-  if (image.classList.contains('effects__preview--marvin')) {
-    imageContent.style.filter = 'invert(' + prop * 100 + '%)';
-  }
-  if (image.classList.contains('effects__preview--phobos')) {
-    imageContent.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
-  }
-  if (image.classList.contains('effects__preview--heat')) {
-    imageContent.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
-  }
-};
-
-/** функция в зависимости от элемента, на котором было совершено инициирующее действие меняет стиль (накладывает фильтр) у фотографии
- * @param {evt} evt
-*/
-var changer = function (evt) {
-  if (evt.target.classList.contains('effects__preview--chrome')) {
-    resetFilter();
-    filterRange.classList.remove('hidden');
-    image.classList.add('effects__preview--chrome');
-    filterPin.addEventListener('mouseup', checkProportions);
-  }
-  if (evt.target.classList.contains('effects__preview--sepia')) {
-    resetFilter();
-    filterRange.classList.remove('hidden');
-    image.classList.add('effects__preview--sepia');
-    filterPin.addEventListener('mouseup', checkProportions);
-  }
-  if (evt.target.classList.contains('effects__preview--marvin')) {
-    resetFilter();
-    filterRange.classList.remove('hidden');
-    image.classList.add('effects__preview--marvin');
-    filterPin.addEventListener('mouseup', checkProportions);
-  }
-  if (evt.target.classList.contains('effects__preview--phobos')) {
-    resetFilter();
-    filterRange.classList.remove('hidden');
-    image.classList.add('effects__preview--phobos');
-    filterPin.addEventListener('mouseup', checkProportions);
-  }
-  if (evt.target.classList.contains('effects__preview--heat')) {
-    resetFilter();
-    filterRange.classList.remove('hidden');
-    image.classList.add('effects__preview--heat');
-    filterPin.addEventListener('mouseup', checkProportions);
-  }
-  if (evt.target.classList.contains('effects__preview--none')) {
-    resetFilter();
+var filterHandler = function (evt) {
+  var value = evt.target.value;
+  // в зависимости от фильтра показываем или нет шкалу глубины фильтрации
+  if (value === 'none') {
     filterRange.classList.add('hidden');
+  } else {
+    filterRange.classList.remove('hidden');
   }
+  filterReboot();
+  /** новый класс в зависимости от значиния выбранного инпута */
+  var className = 'effects__preview--' + value;
+  image.classList.add(className);
+  currentEffectName = value;
 };
 
+/** вычисляет необходимую глубину фильтрации,
+ *  подставляет это значение в input,
+ *  преобразует значение глубины в необходимое для каждого фильтра,
+ *  вставялет инлай стиль у фото
+ * @param {evt} evt -- ожидается mouseup
+ */
+var filterPinMouseupHandler = function (evt) {
+  var filterLineWidth = evt.target.parentNode.offsetWidth;
+  var prop = (evt.target.offsetLeft / filterLineWidth).toFixed(2);
+  var value = prop * 100;
+  filterValue.value = value;
+
+  switch (currentEffectName) {
+    case 'chrome':
+      image.style.filter = 'grayscale(' + prop + ')';
+      break;
+    case 'sepia':
+      image.style.filter = 'sepia(' + prop + ')';
+      break;
+    case 'marvin':
+      image.style.filter = 'invert(' + prop * 100 + '%)';
+      break;
+    case 'phobos':
+      image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
+      break;
+    case 'heat':
+      image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
+      break;
+  }
+};
