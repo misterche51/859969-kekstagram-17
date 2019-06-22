@@ -214,10 +214,7 @@ scaleControlBigger.addEventListener('click', scaleControlBiggerClickHandler);
 
 /** шкала изменения глубины фильтрации */
 var filterRange = photoCorrectionForm.querySelector('.img-upload__effect-level');
-/** функция сбрасывает фильтры на изображении */
-var clearFilterList = function () {
-  image.classList = 'img-upload__preview';
-};
+
 
 // /**
 //  * @description считает отношение значения координат по x у мышки в момент к ширине dom-эелемента, округляет до сотых
@@ -227,38 +224,96 @@ var clearFilterList = function () {
 //   (evt.offsetX / filterRange.offsetWidth).toFixed(2);
 // };
 
+/** стандартное значеине value у input.effect-level__value */
+var FILTER_DEFAULT_VALUE = 100;
+
+/** сбрасывает фильтр в дефолтное значение */
+var resetFilterValue = function () {
+  filterValue.setAttribute('value', FILTER_DEFAULT_VALUE);
+};
+
+/** функция сбрасывает фильтры на изображении */
+var clearFilterList = function () {
+  image.classList = 'img-upload__preview';
+};
+
+/** блок функций для сброса фильтров в дефолт */
+var resetFilter = function () {
+  clearFilterList();
+  resetFilterValue();
+  imageContent.removeAttribute('style');
+};
+
+/** img загруженной фото */
+var imageContent = image.querySelector('img');
+
+
+/** div - поплавок */
+var filterPin = photoCorrectionForm.querySelector('.effect-level__pin');
+/** инпут с value - значение глубины фильтра */
+var filterValue = photoCorrectionForm.querySelector('.effect-level__value');
+
+/**
+ * @description считает отношение значения координат по x у мышки в момент к ширине dom-эелемента, округляет до сотых
+ * @param {evt} evt
+ */
+var checkProportions = function (evt) {
+  var prop = (evt.target.offsetLeft / evt.target.parentNode.offsetWidth).toFixed(2);
+  filterValue.setAttribute('value', prop * 100);
+  if (image.classList.contains('effects__preview--chrome')) {
+    imageContent.style.filter = 'grayscale()';
+  }
+  if (image.classList.contains('effects__preview--sepia')) {
+    imageContent.style.filter = 'sepia()';
+  }
+  if (image.classList.contains('effects__preview--marvin')) {
+    imageContent.style.filter = 'invert(' + prop * 100 + '%)';
+  }
+  if (image.classList.contains('effects__preview--phobos')) {
+    imageContent.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
+  }
+  if (image.classList.contains('effects__preview--heat')) {
+    imageContent.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
+  }
+};
 
 /** функция в зависимости от элемента, на котором было совершено инициирующее действие меняет стиль (накладывает фильтр) у фотографии
  * @param {evt} evt
 */
 var changer = function (evt) {
   if (evt.target.classList.contains('effects__preview--chrome')) {
-    clearFilterList();
+    resetFilter();
     filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--chrome');
+    filterPin.addEventListener('mouseup', checkProportions);
   }
   if (evt.target.classList.contains('effects__preview--sepia')) {
-    clearFilterList();
+    resetFilter();
     filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--sepia');
+    filterPin.addEventListener('mouseup', checkProportions);
   }
   if (evt.target.classList.contains('effects__preview--marvin')) {
-    clearFilterList();
+    resetFilter();
     filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--marvin');
+    filterPin.addEventListener('mouseup', checkProportions);
   }
   if (evt.target.classList.contains('effects__preview--phobos')) {
-    clearFilterList();
+    resetFilter();
     filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--phobos');
+    filterPin.addEventListener('mouseup', checkProportions);
   }
   if (evt.target.classList.contains('effects__preview--heat')) {
-    clearFilterList();
+    resetFilter();
     filterRange.classList.remove('hidden');
     image.classList.add('effects__preview--heat');
+    filterPin.addEventListener('mouseup', checkProportions);
   }
   if (evt.target.classList.contains('effects__preview--none')) {
-    clearFilterList();
+    resetFilter();
     filterRange.classList.add('hidden');
   }
 };
+
