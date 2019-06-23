@@ -161,7 +161,7 @@ var buttonClose = photoCorrectionForm.querySelector('.img-upload__cancel');
  * @param {evt} evt
 */
 var escapeKeydownHandler = function (evt) {
-  if (evt.keyCode === 27) {
+  if (evt.keyCode === 27  && evt.target.type !== 'textarea') {
     closeCorrection();
   }
 };
@@ -169,7 +169,9 @@ var escapeKeydownHandler = function (evt) {
 var openCorrection = function () {
   photoCorrectionForm.classList.remove('hidden');
   filterList.addEventListener('change', filterHandler);
+  filterRange.classList.add('hidden');
   filterPin.addEventListener('mouseup', filterPinMouseupHandler);
+  textAreaComment.addEventListener('input', textAreaIsFullShowMessage);
   document.addEventListener('keydown', escapeKeydownHandler);
 };
 /** закрывает окно редактирования фотографии */
@@ -178,6 +180,7 @@ var closeCorrection = function () {
   inputPhoto.value = null;
   filterList.addEventListener('change', filterHandler);
   filterPin.removeEventListener('mouseup', filterPinMouseupHandler);
+  textAreaComment.removeEventListener('input', textAreaIsFullShowMessage);
   document.removeEventListener('keydown', escapeKeydownHandler);
 };
 
@@ -304,3 +307,14 @@ var filterPinMouseupHandler = function (evt) {
       break;
   }
 };
+
+
+/** textarea ввод комментария при загрузке фото */
+var textAreaComment = photoCorrectionForm.querySelector('.text__description');
+/** alert если достигнута maxlength у поля ввода */
+var textAreaIsFullShowMessage = function (evt) {
+  if (evt.target.value.length == 140) {
+    alert("Больше буков низя");
+  }
+};
+
