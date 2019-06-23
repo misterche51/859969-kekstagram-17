@@ -161,7 +161,7 @@ var buttonClose = photoCorrectionForm.querySelector('.img-upload__cancel');
  * @param {evt} evt
 */
 var escapeKeydownHandler = function (evt) {
-  if (evt.keyCode === 27  && evt.target.type !== 'textarea') {
+  if (evt.keyCode === 27 && evt.target.type !== 'textarea') {
     closeCorrection();
   }
 };
@@ -311,10 +311,14 @@ var filterPinMouseupHandler = function (evt) {
 
 /** textarea ввод комментария при загрузке фото */
 var textAreaComment = photoCorrectionForm.querySelector('.text__description');
-/** alert если достигнута maxlength у поля ввода */
+/** изменение цвета при достижении maxlength у поля ввода
+ * @param {evt} evt ожидается input у textarea
+*/
 var textAreaIsFullShowMessage = function (evt) {
-  if (evt.target.value.length == 140) {
-    alert("Больше буков низя");
+  if (evt.target.value.length === 140) {
+    textAreaComment.style.background = 'red';
+  } else {
+    textAreaComment.removeAttribute('style');
   }
 };
 
