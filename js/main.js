@@ -170,7 +170,8 @@ var openCorrection = function () {
   photoCorrectionForm.classList.remove('hidden');
   filterList.addEventListener('change', filterHandler);
   filterRange.classList.add('hidden');
-  filterPin.addEventListener('mouseup', filterPinMouseupHandler);
+  filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
+  // filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
   textAreaComment.addEventListener('input', textAreaIsFullShowMessage);
   document.addEventListener('keydown', escapeKeydownHandler);
 };
@@ -178,8 +179,9 @@ var openCorrection = function () {
 var closeCorrection = function () {
   photoCorrectionForm.classList.add('hidden');
   inputPhoto.value = null;
-  filterList.addEventListener('change', filterHandler);
-  filterPin.removeEventListener('mouseup', filterPinMouseupHandler);
+  filterList.removeEventListener('change', filterHandler);
+  filterPin.removeEventListener('mousedown', filterPinMouseDownHandler);
+  // filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
   textAreaComment.removeEventListener('input', textAreaIsFullShowMessage);
   document.removeEventListener('keydown', escapeKeydownHandler);
 };
@@ -281,32 +283,36 @@ var filterHandler = function (evt) {
  *  подставляет это значение в input,
  *  преобразует значение глубины в необходимое для каждого фильтра,
  *  вставялет инлай стиль у фото
- * @param {evt} evt -- ожидается mouseup
+ * @param {evt} upEvt -- ожидается mouseup
  */
-var filterPinMouseupHandler = function (evt) {
-  var filterLineWidth = evt.target.parentNode.offsetWidth;
-  var prop = (evt.target.offsetLeft / filterLineWidth).toFixed(2);
-  var value = prop * 100;
-  filterValue.value = value;
+// var filterPinMouseUpHandler = function (upEvt) {
+//   upEvt.preventDefault();
+//   var filterLineWidth = upEvt.target.parentNode.offsetWidth;
+//   var prop = (upEvt.target.offsetLeft / filterLineWidth).toFixed(2);
+//   var value = prop * 100;
+//   filterValue.value = value;
 
-  switch (currentEffectName) {
-    case 'chrome':
-      image.style.filter = 'grayscale(' + prop + ')';
-      break;
-    case 'sepia':
-      image.style.filter = 'sepia(' + prop + ')';
-      break;
-    case 'marvin':
-      image.style.filter = 'invert(' + prop * 100 + '%)';
-      break;
-    case 'phobos':
-      image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
-      break;
-    case 'heat':
-      image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
-      break;
-  }
-};
+//   switch (currentEffectName) {
+//     case 'chrome':
+//       image.style.filter = 'grayscale(' + prop + ')';
+//       break;
+//     case 'sepia':
+//       image.style.filter = 'sepia(' + prop + ')';
+//       break;
+//     case 'marvin':
+//       image.style.filter = 'invert(' + prop * 100 + '%)';
+//       break;
+//     case 'phobos':
+//       image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
+//       break;
+//     case 'heat':
+//       image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
+//       break;
+//   }
+
+//   filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
+//   filterPin.removeEventListener('mouseup', filterPinMouseMoveHandler);
+// };
 
 
 /** textarea ввод комментария при загрузке фото */
@@ -322,3 +328,75 @@ var textAreaIsFullShowMessage = function (evt) {
   }
 };
 
+
+filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
+
+var filterPinMouseDownHandler = function (downEvt) {
+  downEvt.preventDefault();
+  /** берем начальные координаты при взаимодействии с элементом */
+  var startPosition = downEvt.clientX;
+  var coordsOfLine = filterPin.parentNode.getBoundingClientRect();
+  var min = coordsOfLine.left;
+  var max = coordsOfLine.right;
+  var filterLine = filterPin.parentNode;
+  var filterLineWidth = filterLine.offsetWidth;
+  var prop = (filterPin.offsetLeft / filterLineWidth).toFixed(2);
+  var value = prop * 100;
+  filterValue.value = value;
+
+  var switcher = function () {
+    switch (currentEffectName) {
+      case 'chrome':
+        image.style.filter = 'grayscale(' + prop + ')';
+        break;
+      case 'sepia':
+        image.style.filter = 'sepia(' + prop + ')';
+        break;
+      case 'marvin':
+        image.style.filter = 'invert(' + prop * 100 + '%)';
+        break;
+      case 'phobos':
+        image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
+        break;
+      case 'heat':
+        image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
+        break;
+    }
+  };
+
+  var filterPinMouseMoveHandler = function (moveEvt) {
+    moveEvt.preventDefault();
+    // var PIN_CENTER = filterPin.offsetWidth / 2;
+    var effectLine = filterRange.querySelector('.effect-level__depth');
+
+    switcher();
+
+    /** ищем перемещение */
+    var shift = startPosition - moveEvt.clientX;
+    /** помещаем новые координаты в старт */
+    startPosition = moveEvt.clientX;
+
+    // изменяем позицию через стиль
+    if (startPosition < min) {
+      filterPin.style.left = 0 + 'px';
+    }
+    if (startPosition > max) {
+      filterPin.style.left = filterPin.parentNode.offsetWidth + 'px';
+    }
+    filterPin.style.left = (filterPin.offsetLeft - shift) + 'px';
+    effectLine.style.width = (filterPin.offsetLeft - shift) + 'px';
+  };
+
+  var filterPinMouseUpHandler = function (upEvt) {
+    upEvt.preventDefault();
+
+    switcher();
+
+
+    filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
+    filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
+  };
+
+  filterPin.addEventListener('mousemove', filterPinMouseMoveHandler);
+  filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
+};
