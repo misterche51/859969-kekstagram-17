@@ -171,7 +171,6 @@ var openCorrection = function () {
   filterList.addEventListener('change', filterHandler);
   filterRange.classList.add('hidden');
   filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
-  // filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
   textAreaComment.addEventListener('input', textAreaIsFullShowMessage);
   document.addEventListener('keydown', escapeKeydownHandler);
 };
@@ -181,7 +180,6 @@ var closeCorrection = function () {
   inputPhoto.value = null;
   filterList.removeEventListener('change', filterHandler);
   filterPin.removeEventListener('mousedown', filterPinMouseDownHandler);
-  // filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
   textAreaComment.removeEventListener('input', textAreaIsFullShowMessage);
   document.removeEventListener('keydown', escapeKeydownHandler);
 };
@@ -240,7 +238,7 @@ var currentEffectName = null;
 
 /** сбрасывает значение фильтра к стандартному */
 var filterValueReset = function () {
-  filterValue.value = FILTER_DEFAULT_VALUE;
+  filterValue.setAttribute('value', FILTER_DEFAULT_VALUE);
 };
 /** убирает все лишние классы с фото */
 var imageClassListReset = function () {
@@ -256,12 +254,17 @@ var filterReboot = function () {
   filterValueReset();
   imageClassListReset();
   imageInlineStyleDelete();
+  var prop = FILTER_DEFAULT_VALUE / 100;
+  switcher(prop);
+  filterPin.style.left = filterPin.parentNode.offsetWidth + 'px';
+  effectLine.style.width = filterPin.parentNode.offsetWidth + 'px';
 };
 
 /**
  * в зависимости от того, какой фильтр (input) был выбран,
  * блоку image присваивается соответствующий класс, а также показывается или нет (блок с if)
  * шкала глубины фильтрации
+ * также происхоидт вызов filterRebeeot, для обнуления значений от предыдущей фильтрации
  * @param {evt} evt предполагается change на input type=radio
  */
 var filterHandler = function (evt) {
@@ -279,41 +282,6 @@ var filterHandler = function (evt) {
   currentEffectName = value;
 };
 
-/** вычисляет необходимую глубину фильтрации,
- *  подставляет это значение в input,
- *  преобразует значение глубины в необходимое для каждого фильтра,
- *  вставялет инлай стиль у фото
- * @param {evt} upEvt -- ожидается mouseup
- */
-// var filterPinMouseUpHandler = function (upEvt) {
-//   upEvt.preventDefault();
-//   var filterLineWidth = upEvt.target.parentNode.offsetWidth;
-//   var prop = (upEvt.target.offsetLeft / filterLineWidth).toFixed(2);
-//   var value = prop * 100;
-//   filterValue.value = value;
-
-//   switch (currentEffectName) {
-//     case 'chrome':
-//       image.style.filter = 'grayscale(' + prop + ')';
-//       break;
-//     case 'sepia':
-//       image.style.filter = 'sepia(' + prop + ')';
-//       break;
-//     case 'marvin':
-//       image.style.filter = 'invert(' + prop * 100 + '%)';
-//       break;
-//     case 'phobos':
-//       image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
-//       break;
-//     case 'heat':
-//       image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
-//       break;
-//   }
-
-//   filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
-//   filterPin.removeEventListener('mouseup', filterPinMouseMoveHandler);
-// };
-
 
 /** textarea ввод комментария при загрузке фото */
 var textAreaComment = photoCorrectionForm.querySelector('.text__description');
@@ -328,75 +296,72 @@ var textAreaIsFullShowMessage = function (evt) {
   }
 };
 
-
-filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
+/** полоса, отображающая глубину эффекта */
+var effectLine = filterRange.querySelector('.effect-level__depth');
+var switcher = function (prop) {
+  switch (currentEffectName) {
+    case 'chrome':
+      image.style.filter = 'grayscale(' + prop + ')';
+      break;
+    case 'sepia':
+      image.style.filter = 'sepia(' + prop + ')';
+      break;
+    case 'marvin':
+      image.style.filter = 'invert(' + prop * 100 + '%)';
+      break;
+    case 'phobos':
+      image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
+      break;
+    case 'heat':
+      image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
+      break;
+  }
+};
 
 var filterPinMouseDownHandler = function (downEvt) {
   downEvt.preventDefault();
   /** берем начальные координаты при взаимодействии с элементом */
   var startPosition = downEvt.clientX;
-  var coordsOfLine = filterPin.parentNode.getBoundingClientRect();
-  var min = coordsOfLine.left;
-  var max = coordsOfLine.right;
-  var filterLine = filterPin.parentNode;
-  var filterLineWidth = filterLine.offsetWidth;
-  var prop = (filterPin.offsetLeft / filterLineWidth).toFixed(2);
-  var value = prop * 100;
-  filterValue.value = value;
 
-  var switcher = function () {
-    switch (currentEffectName) {
-      case 'chrome':
-        image.style.filter = 'grayscale(' + prop + ')';
-        break;
-      case 'sepia':
-        image.style.filter = 'sepia(' + prop + ')';
-        break;
-      case 'marvin':
-        image.style.filter = 'invert(' + prop * 100 + '%)';
-        break;
-      case 'phobos':
-        image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
-        break;
-      case 'heat':
-        image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
-        break;
-    }
-  };
+  var filterLineWidth = filterPin.parentNode.offsetWidth;
+  var value = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
+  filterValue.setAttribute('value', value);
+  var prop = value / 100;
+
+  switcher(prop);
 
   var filterPinMouseMoveHandler = function (moveEvt) {
     moveEvt.preventDefault();
-    // var PIN_CENTER = filterPin.offsetWidth / 2;
-    var effectLine = filterRange.querySelector('.effect-level__depth');
-
-    switcher();
-
+    var valueAtMoveMoment = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
+    filterValue.setAttribute('value', valueAtMoveMoment);
+    var propAtMoveMoment = valueAtMoveMoment / 100;
+    switcher(propAtMoveMoment);
     /** ищем перемещение */
     var shift = startPosition - moveEvt.clientX;
     /** помещаем новые координаты в старт */
     startPosition = moveEvt.clientX;
-
-    // изменяем позицию через стиль
-    if (startPosition < min) {
-      filterPin.style.left = 0 + 'px';
+    /** вычисляем новое положение */
+    var newPinPosition = filterPin.offsetLeft - shift;
+    /** проверка на НЕправильность */
+    var isInvalidNewPinPosition = newPinPosition < 0 || newPinPosition > filterLineWidth;
+    if (isInvalidNewPinPosition) {
+      filterPin.style.left = filterPin.style.left + 'px';
+      effectLine.style.width = effectLine.style.width + 'px';
+    } else {
+      filterPin.style.left = newPinPosition + 'px';
+      effectLine.style.width = newPinPosition + 'px';
     }
-    if (startPosition > max) {
-      filterPin.style.left = filterPin.parentNode.offsetWidth + 'px';
-    }
-    filterPin.style.left = (filterPin.offsetLeft - shift) + 'px';
-    effectLine.style.width = (filterPin.offsetLeft - shift) + 'px';
   };
 
   var filterPinMouseUpHandler = function (upEvt) {
     upEvt.preventDefault();
-
-    switcher();
-
-
+    var valueAtUpMoment = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
+    filterValue.setAttribute('value', valueAtUpMoment);
+    var propAtUpMoment = valueAtUpMoment / 100;
+    switcher(propAtUpMoment);
     filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
     filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
   };
-
   filterPin.addEventListener('mousemove', filterPinMouseMoveHandler);
   filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
 };
