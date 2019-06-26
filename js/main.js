@@ -249,13 +249,38 @@ var imageInlineStyleDelete = function () {
   image.removeAttribute('style');
 };
 
+/**
+ * функция подставляет css свойство к изобржению в соответствии с выбранным фильтром
+ * @param {Number} prop отношение расположеня пина к длине шкалы
+ */
+var switcher = function (prop) {
+  switch (currentEffectName) {
+    case 'chrome':
+      image.style.filter = 'grayscale(' + prop + ')';
+      break;
+    case 'sepia':
+      image.style.filter = 'sepia(' + prop + ')';
+      break;
+    case 'marvin':
+      image.style.filter = 'invert(' + prop * 100 + '%)';
+      break;
+    case 'phobos':
+      image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
+      break;
+    case 'heat':
+      image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
+      break;
+    default:
+      image.removeAttribute('style');
+  }
+};
+
 /** общий сброс стилей с фото */
 var filterReboot = function () {
+  image.removeAttribute('style');
   filterValueReset();
   imageClassListReset();
   imageInlineStyleDelete();
-  var prop = FILTER_DEFAULT_VALUE / 100;
-  switcher(prop);
   filterPin.style.left = filterPin.parentNode.offsetWidth + 'px';
   effectLine.style.width = filterPin.parentNode.offsetWidth + 'px';
 };
@@ -275,11 +300,15 @@ var filterHandler = function (evt) {
   } else {
     filterRange.classList.remove('hidden');
   }
+
   filterReboot();
   /** новый класс в зависимости от значиния выбранного инпута */
   var className = 'effects__preview--' + value;
   image.classList.add(className);
   currentEffectName = value;
+
+  var prop = FILTER_DEFAULT_VALUE / 100;
+  switcher(prop);
 };
 
 
@@ -298,36 +327,16 @@ var textAreaIsFullShowMessage = function (evt) {
 
 /** полоса, отображающая глубину эффекта */
 var effectLine = filterRange.querySelector('.effect-level__depth');
-var switcher = function (prop) {
-  switch (currentEffectName) {
-    case 'chrome':
-      image.style.filter = 'grayscale(' + prop + ')';
-      break;
-    case 'sepia':
-      image.style.filter = 'sepia(' + prop + ')';
-      break;
-    case 'marvin':
-      image.style.filter = 'invert(' + prop * 100 + '%)';
-      break;
-    case 'phobos':
-      image.style.filter = 'blur(' + (3 * prop).toFixed(2) + 'px)';
-      break;
-    case 'heat':
-      image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
-      break;
-  }
-};
+
 
 var filterPinMouseDownHandler = function (downEvt) {
   downEvt.preventDefault();
   /** берем начальные координаты при взаимодействии с элементом */
   var startPosition = downEvt.clientX;
-
   var filterLineWidth = filterPin.parentNode.offsetWidth;
   var value = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
   filterValue.setAttribute('value', value);
   var prop = value / 100;
-
   switcher(prop);
 
   var filterPinMouseMoveHandler = function (moveEvt) {
