@@ -1,8 +1,9 @@
 'use strict';
 //  Модуль для генерации моков
 (function () {
-  /** количество генерируемых объектов-фото */
-  var COUNT_OF_PHOTOS = 25;
+
+   /** количество генерируемых объектов-фото */
+   var COUNT_OF_PHOTOS = 25;
 
   /**
    * @description объект с диапазоном количество лайков
@@ -113,11 +114,6 @@
     return gallery;
   };
 
-  /**
-   * @description массив объектов для вставки на страницу
-   */
-  var photos = createGallery(COUNT_OF_PHOTOS);
-
-  window.photos = photos;
-
+  //  экспортирую метод в глобальную область видимости
+  window.createGallery = createGallery(COUNT_OF_PHOTOS);
 })();

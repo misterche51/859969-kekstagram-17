@@ -2,14 +2,10 @@
 //  Модуль для вставки подготовленных ранее данных в HTML
 (function () {
 
-  /** контейнер для вставки данных */
-  var container = document.querySelector('.pictures');
-
   /** шаблон */
   var pictureTemplate = document.querySelector('#picture')
       .content
       .querySelector('.picture');
-
   /**
    * @description создает фрагмент на странице и наполнять его заполненными клонами
    * @param {Array} items
@@ -27,9 +23,8 @@
     return newFragment;
   };
 
-  /** фрагмент, подготовленный для вставки на страницу */
-  var fragment = createFragment(window.photos);
-
-  // пушим фрагмент в документ
-  container.appendChild(fragment);
+  //  экспортирую метод в глобальную область видимости
+  window.push = {
+    createFragment:createFragment
+  };
 })();
