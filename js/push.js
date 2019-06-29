@@ -25,6 +25,6 @@
 
   //  экспортирую метод в глобальную область видимости
   window.push = {
-    createFragment:createFragment
+    createFragment: createFragment
   };
 })();
