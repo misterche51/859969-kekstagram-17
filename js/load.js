@@ -4,7 +4,7 @@
   /** ссылка на сервер */
   var URL = 'https://js.dump.academy/kekstagram/data';
 
-  window.load = function (onSuccess, onError) {
+  var load = function (onSuccess, onError) {
     /** новый объект XHR */
     var xhr = new XMLHttpRequest();
     //  ожидаемый тип данных с сервера json
@@ -32,5 +32,9 @@
     xhr.open('GET', URL);
     // отправляю запрос
     xhr.send();
+  };
+
+  window.api = {
+    load: load,
   };
 })();

@@ -50,7 +50,7 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-  window.load(successHandler, errorHandler);
+  window.api.load(successHandler, errorHandler);
 
 
   /** навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото */
