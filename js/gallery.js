@@ -11,8 +11,6 @@
     .querySelector('.picture');
   /** кнопка загрузки нового изображения */
   var inputPhoto = document.querySelector('#upload-file');
-  /** навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото */
-  inputPhoto.addEventListener('change', window.form.open);
 
   /**
    * @description создает фрагмент на странице и наполнять его заполненными клонами
@@ -29,15 +27,32 @@
   };
 
   /**
- * @callback function(galleryItems)
- * @param {Array} galleryItems -- данные с сервера в формате массива объектов
- */
-  window.load(function (galleryItems) {
+  * @param {Array} galleryItems -- данные с сервера в формате массива объектов
+  */
+  var successHandler = function (galleryItems) {
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < COUNT_OF_PHOTOS; i++) {
       fragment.appendChild(renderItem(galleryItems[i]));
     }
     container.appendChild(fragment);
-  });
+  };
+
+  var errorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; padding: 50px 0;text-align: center; background-color: red;';
+    node.style.position = 'fixed';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  window.load(successHandler, errorHandler);
+
+
+  /** навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото */
+  inputPhoto.addEventListener('change', window.form.open);
 })();
