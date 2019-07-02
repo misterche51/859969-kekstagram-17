@@ -1,41 +1,50 @@
 'use strict';
 // модуль работы с галереей на главной
 (function () {
-  /** контейнер для вставки данных */
-  var container = document.querySelector('.pictures');
-  /** количество генерируемых объектов-фото */
-  var COUNT_OF_PHOTOS = 25;
-  /** шаблон */
-  var pictureTemplate = document.querySelector('#picture')
-    .content
-    .querySelector('.picture');
+
   /** кнопка загрузки нового изображения */
   var inputPhoto = document.querySelector('#upload-file');
+  /** section с button-ами фильтров галереи */
+  var filters = document.querySelector('.img-filters');
 
+
+
+
+
+  /** массив для копирования данных с сервера */
+  var galleryItems = [];
   /**
-   * @description создает фрагмент на странице и наполнять его заполненными клонами
-   * @param {Object} item
-   * @return {Element}
-   */
-  var renderItem = function (item) {
-    var newPicture = pictureTemplate.cloneNode(true);
-    newPicture.querySelector('.picture__img').src = item.url;
-    newPicture.querySelector('.picture__comments').textContent = item.comments.length;
-    newPicture.querySelector('.picture__likes').textContent = item.likes;
-
-    return newPicture;
+  * @param {Array} data -- данные с сервера в формате массива объектов
+  */
+  var successHandler = function (data) {
+    // копирую данные для дальнейшей обработки
+    galleryItems = data;
+    window.render(galleryItems);
+    // показываю интерфейс выбора фильтров отображения в галерее
+    filters.classList.remove('img-filters--inactive');
   };
 
-  /**
-  * @param {Array} galleryItems -- данные с сервера в формате массива объектов
-  */
-  var successHandler = function (galleryItems) {
-    var fragment = document.createDocumentFragment();
+  var updateGallery = function (evt) {
 
-    for (var i = 0; i < COUNT_OF_PHOTOS; i++) {
-      fragment.appendChild(renderItem(galleryItems[i]));
-    }
-    container.appendChild(fragment);
+    /** массив с последними фотографиями (10 рандомных !!НЕПОВТОРЯЮЩИХСЯ) */
+    var newestItems = galleryItems
+      .slice()
+      .sort(function (){return 0.5 - Math.random();})
+      .splice(0, 10);
+
+    var hottestItems = galleryItems
+      .slice()
+      .sort(function (a,b){
+        return b.comments.length - a.comments.length;
+      });
+
+      var idToRenderGallery = {
+        'popular': galleryItems,
+        'new': newestItems,
+        'discussed': hottestItems
+      };
+      // console.log(idToRenderGallery[evt.target.id.slice(7)]);
+      window.render(idToRenderGallery[evt.target.id.slice(7)]);
   };
 
   var errorHandler = function (errorMessage) {
@@ -51,8 +60,17 @@
   };
 
   window.api.load(successHandler, errorHandler);
-
-
-  /** навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото */
+  // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
   inputPhoto.addEventListener('change', window.form.open);
+
+
+  var filtrationHandler = function (evt) {
+    if (evt.target.type === 'button') {
+      updateGallery(evt);
+      evt.preventDefault();
+    }
+  };
+  filters.addEventListener('click', filtrationHandler);
+
+
 })();
