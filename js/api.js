@@ -3,7 +3,7 @@
 (function () {
   /** ссылка на сервер */
   var URL = 'https://js.dump.academy/kekstagram/data';
-  var TIMEOUT = 10000;
+  var TIMEOUT = 15000;
   var ERROR_CODE = 200;
 
   var load = function (onSuccess, onError) {
