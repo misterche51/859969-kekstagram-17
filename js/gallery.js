@@ -6,9 +6,42 @@
   var inputPhoto = document.querySelector('#upload-file');
   /** section с button-ами фильтров галереи */
   var filters = document.querySelector('.img-filters');
+  var shuffle = function (arr) {
+    var j;
+    var temp;
+    for (var i = arr.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random()*(i+1));
+      temp = arr[j];
+      arr[j] = arr[i];
+      arr[i] = temp;
+    }
+    return arr;
+  };
+  /** правило сортировки по комментариям
+   * @param {Array} a массив
+   * @param {Array} b массив
+   */
+  var sortingByComments = function (a, b) {
+    return b.comments.length - a.comments.length;
+  };
+  /** Функция создает массив с последними фотографиями (10 рандомных !!НЕПОВТОРЯЮЩИХСЯ) */
+  var newestItems = function (arr) {
+    return shuffle(arr.slice(0)).slice(0, 10);
+  };
+  /** Функция создает отсортированный массив по количеству комменатриев */
+  var hottestItems = function (arr) {
+    return arr.slice().sort(sortingByComments);
+  };
+  /** мапа для реализации отображения нужной галереи в зависимости от выбранного фильтпа */
+  var idToRenderGallery = {
+    'popular': galleryItems,
+    'new': newestItems,
+    'discussed': hottestItems
+  };
 
+  var deletePictures = function () {
 
-
+  };
 
 
   /** массив для копирования данных с сервера */
@@ -25,26 +58,8 @@
   };
 
   var updateGallery = function (evt) {
-
-    /** массив с последними фотографиями (10 рандомных !!НЕПОВТОРЯЮЩИХСЯ) */
-    var newestItems = galleryItems
-      .slice()
-      .sort(function (){return 0.5 - Math.random();})
-      .splice(0, 10);
-
-    var hottestItems = galleryItems
-      .slice()
-      .sort(function (a,b){
-        return b.comments.length - a.comments.length;
-      });
-
-      var idToRenderGallery = {
-        'popular': galleryItems,
-        'new': newestItems,
-        'discussed': hottestItems
-      };
-      // console.log(idToRenderGallery[evt.target.id.slice(7)]);
-      window.render(idToRenderGallery[evt.target.id.slice(7)]);
+    var filterName = evt.target.id.slice(7);
+    window.render(idToRenderGallery[filterName](galleryItems));
   };
 
   var errorHandler = function (errorMessage) {
@@ -62,7 +77,6 @@
   window.api.load(successHandler, errorHandler);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
   inputPhoto.addEventListener('change', window.form.open);
-
 
   var filtrationHandler = function (evt) {
     if (evt.target.type === 'button') {

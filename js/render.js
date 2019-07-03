@@ -3,8 +3,8 @@
 (function () {
   /** контейнер для вставки данных */
   var container = document.querySelector('.pictures');
-  /** количество генерируемых объектов-фото */
-  var COUNT_OF_PHOTOS = 25;
+  // /** количество генерируемых объектов-фото */
+  // var COUNT_OF_PHOTOS = 25;
   /** шаблон */
   var pictureTemplate = document.querySelector('#picture')
     .content
@@ -26,11 +26,9 @@
 
     window.render = function (data) {
       var fragment = document.createDocumentFragment();
-
       for (var i = 0; i < data.length; i++) {
         fragment.appendChild(renderItem(data[i]));
       }
-
       container.appendChild(fragment);
     };
 

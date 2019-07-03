@@ -3,6 +3,8 @@
 (function () {
   /** ссылка на сервер */
   var URL = 'https://js.dump.academy/kekstagram/data';
+  var TIMEOUT = 10000;
+  var ERROR_CODE = 200;
 
   var load = function (onSuccess, onError) {
     /** новый объект XHR */
@@ -12,7 +14,7 @@
     // навешиваю обработчик на событие LOAD, если данные пришли с сервера и все хорошо
     // тогда выполняется CB onSuccess с полученными с сервера данными (xhr.response)
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === ERROR_CODE) {
         onSuccess(xhr.response);
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
@@ -27,7 +29,7 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мc');
     });
 
-    xhr.timeout = 10000;
+    xhr.timeout = TIMEOUT;
     //  открываю соединение с севрером с помощью метода GET
     xhr.open('GET', URL);
     // отправляю запрос
