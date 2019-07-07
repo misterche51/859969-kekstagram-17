@@ -1,58 +1,73 @@
 'use strict';
 
 (function () {
-  var picture = document.querySelector('.big-picture');
-  var pictureBox = picture.querySelector('.big-picture__img');
-  var buttonMoreComments = picture.querySelector('.comments-loader');
-  var commentsList = document.querySelector('.social__comments');
+  var pictureOverlay = document.querySelector('.big-picture');
+  var pictureImage = pictureOverlay.querySelector('.big-picture__img');
+  /** кнопка "загрузить еще комментариев" */
+  var buttonMoreComments = pictureOverlay.querySelector('.comments-loader');
+  /** блок с комментариями под фотографией */
+  var commentsList = pictureOverlay.querySelector('.social__comments');
+  /** шаблон комментария */
   var commentTemplate = document.querySelector('#comment')
     .content
     .querySelector('.social__comment');
+  /** кнопка закрыть окно с картинкой */
+  var closePictureOverlayButton = pictureOverlay.querySelector('.big-picture__cancel');
+  /** функция закрывания окна с картинкой */
+  var closePictureOverlay = function () {
+    pictureOverlay.classList.add('hidden');
+  };
 
+
+  closePictureOverlayButton.addEventListener('click', closePictureOverlay);
 
   //  вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
   var escapeKeydownHandler = function (evt) {
     if (evt.keyCode === 27 && evt.target.type !== 'text') {
-      picture.classList.add('hidden');
+      closePictureOverlay();
     }
   };
 
   /**
   * @description создает фрагмент на странице и наполнять его заполненными клонами
-  * @param {Object} data
+  * @param {Object} item
   */
-  var renderPicture = function (data) {
-    var item = data[0];
-    pictureBox.querySelector('img').src = item.url;
-    picture.querySelector('.likes-count').textContent = item.likes;
-    picture.querySelector('.social__caption').textContent = item.description;
+  var renderPicture = function (item) {
+    pictureImage.querySelector('img').src = item.url;
+    pictureOverlay.querySelector('.likes-count').textContent = item.likes;
+    pictureOverlay.querySelector('.social__caption').textContent = item.description;
+    pictureOverlay.querySelector('.comments-count').textContent = item.comments.length;
   };
 
-  var randomAvatar = function (min, max) {
-    return 'img/avatar-' + window.utils.randomizer(min, max) + '.svg';
+  var getRandomAvatar = function (min, max) {
+    return 'img/avatar-' + window.utils.getRandomNumber(min, max) + '.svg';
   };
 
-  var renderComment = function (data) {
+  var createComment = function (item) {
     var newComment = commentTemplate.cloneNode(true);
-    newComment.querySelector('.social__picture').src = randomAvatar(1, 6);
-    newComment.querySelector('.social__text').textContent = data.message;
+    newComment.querySelector('.social__picture').src = getRandomAvatar(1, 6);
+    newComment.querySelector('.social__text').textContent = item.message;
     return newComment;
   };
 
-  var renderizeHandler = function (data) {
-    var item = data[0];
+  var renderComments = function (item) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < item.comments.length; i++) {
-      fragment.appendChild(renderComment(item.comments[i]));
+      fragment.appendChild(createComment(item.comments[i]));
     }
     commentsList.appendChild(fragment);
   };
 
+  var renderBigPicture = function (item) {
+    renderPicture(item);
+    renderComments(item);
+  };
 
   document.addEventListener('keydown', escapeKeydownHandler);
   buttonMoreComments.classList.add('visually-hidden');
-  picture.classList.remove('hidden');
-  window.api.load(renderPicture);
-  window.api.load(renderizeHandler);
+  pictureOverlay.classList.remove('hidden');
 
+  window.bigpicture = {
+    renderBigPicture: renderBigPicture,
+  };
 })();
