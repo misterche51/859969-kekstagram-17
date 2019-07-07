@@ -33,9 +33,14 @@
     return shuffledArr;
   };
 
+  var randomizer = function (min, max) {
+    return Math.floor(Math.random() * (max)) + min;
+  };
+
 
   window.utils = {
     debounceHandler: debounceHandler,
     shuffle: shuffle,
+    randomizer: randomizer,
   };
 })();
