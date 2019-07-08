@@ -7,6 +7,8 @@
   var inputPhoto = document.querySelector('#upload-file');
   /** section с button-ами фильтров галереи */
   var filters = document.querySelector('.img-filters');
+  var pictureOverlay = document.querySelector('.overlay');
+  var gallery = document.querySelector('.pictures');
   /** массив для копирования данных с сервера */
   var galleryItems = [];
 
@@ -77,7 +79,6 @@
     // копирую данные для дальнейшей обработки
     galleryItems = data;
     window.render(galleryItems);
-    window.bigpicture.renderBigPicture(galleryItems[0]);
     // показываю интерфейс выбора фильтров отображения в галерее
     filters.classList.remove('img-filters--inactive');
   };
@@ -110,9 +111,18 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
+  var zoomBigPictureFromLittlePicture = function (evt) {
+    if (evt.target.classList.contains('picture__img')) {
+      var number = evt.target.getAttribute('data-index');
+      pictureOverlay.classList.remove('hidden');
+      window.bigpicture.renderBigPicture(galleryItems[number]);
+    }
+  };
+
   window.api.load(successHandler, errorHandler);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
   inputPhoto.addEventListener('change', window.form.open);
   //  навешиваемся на секшн, чтобы запустить работу фильтров при клике
   filters.addEventListener('click', filtrationHandler);
+  gallery.addEventListener('click', zoomBigPictureFromLittlePicture);
 })();

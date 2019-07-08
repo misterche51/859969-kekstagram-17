@@ -18,7 +18,7 @@
     newPicture.querySelector('.picture__img').src = item.url;
     newPicture.querySelector('.picture__comments').textContent = item.comments.length;
     newPicture.querySelector('.picture__likes').textContent = item.likes;
-
+    newPicture.querySelector('img').setAttribute('data-index', item.url.slice(7, 9) - 1);
     return newPicture;
   };
 

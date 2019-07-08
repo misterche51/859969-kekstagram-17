@@ -65,7 +65,6 @@
 
   document.addEventListener('keydown', escapeKeydownHandler);
   buttonMoreComments.classList.add('visually-hidden');
-  pictureOverlay.classList.remove('hidden');
 
   window.bigpicture = {
     renderBigPicture: renderBigPicture,
