@@ -45,7 +45,7 @@
    * @return {Array}
   */
   var newestItems = function (arr) {
-    return window.utils.shuffle(arr).slice(0, 10);
+    return window.utils.getShuffleArray(arr).slice(0, 10);
   };
   /** Функция создает отсортированный массив по количеству комменатриев
    * @param {Array} arr
@@ -77,6 +77,7 @@
     // копирую данные для дальнейшей обработки
     galleryItems = data;
     window.render(galleryItems);
+    window.bigpicture.renderBigPicture(galleryItems[0]);
     // показываю интерфейс выбора фильтров отображения в галерее
     filters.classList.remove('img-filters--inactive');
   };

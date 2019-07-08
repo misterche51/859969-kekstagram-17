@@ -53,6 +53,8 @@
       close();
     }
   };
+
+
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
   var open = function () {
     photoCorrectionForm.classList.remove('hidden');

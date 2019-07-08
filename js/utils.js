@@ -3,6 +3,7 @@
   /** вспомогательная переменная для debounceHandler */
   var lastTimeout;
   var TIMEOUT_VALUE = 500;
+  var ESCAPE_KEYCODE = 27;
   /** функция удаления дребезжания
  * @param {callback} f
  */
@@ -19,7 +20,7 @@
    * @param {Array} arr
    * @return {Array} перемешанный массив
    */
-  var shuffle = function (arr) {
+  var getShuffleArray = function (arr) {
     //  копируем массив для обработки
     var shuffledArr = arr.slice(0);
     var j;
@@ -33,9 +34,26 @@
     return shuffledArr;
   };
 
+  var getRandomNumber = function (min, max) {
+    return Math.floor(Math.random() * (max)) + min;
+  };
+  /**
+   * функция вызова коллбэка при взаимодействии с 'esc'
+   * @param {evt} evt
+   * @param {String} fn -- навание функции
+   * @param {String} fieldType
+   */
+  var escapeKeyDownHandler = function (evt, fn, fieldType) {
+    if (evt.keycode === ESCAPE_KEYCODE && evt.target.type !== fieldType) {
+      fn();
+    }
+  };
+
 
   window.utils = {
     debounceHandler: debounceHandler,
-    shuffle: shuffle,
+    getShuffleArray: getShuffleArray,
+    getRandomNumber: getRandomNumber,
+    escapeKeyDownHandler: escapeKeyDownHandler,
   };
 })();
