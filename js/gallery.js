@@ -11,6 +11,8 @@
   var gallery = document.querySelector('.pictures');
   /** массив для копирования данных с сервера */
   var galleryItems = [];
+  var currentGalleryItems;
+
 
   /** сбрасывает стиль активности со всех батонов */
   var dropActiveStyle = function () {
@@ -78,7 +80,8 @@
   var successHandler = function (data) {
     // копирую данные для дальнейшей обработки
     galleryItems = data;
-    window.render(galleryItems);
+    currentGalleryItems = galleryItems;
+    window.render(currentGalleryItems);
     // показываю интерфейс выбора фильтров отображения в галерее
     filters.classList.remove('img-filters--inactive');
   };
@@ -89,12 +92,11 @@
     deletePictures();
     /** название фильтра, получаемое из id */
     var filterName = evt.target.id.slice(7);
+    currentGalleryItems = filterName === 'popular'
+      ? galleryItems
+      : idToRenderGallery[filterName](galleryItems);
 
-    if (filterName === 'popular') {
-      window.render(galleryItems);
-    } else {
-      window.render(idToRenderGallery[filterName](galleryItems));
-    }
+    window.render(currentGalleryItems);
   };
   /** функция выполняется при неполадке во взаимодействии с сервером
    * @param {errorMessage} errorMessage
@@ -111,11 +113,12 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-  var zoomBigPictureFromLittlePicture = function (evt) {
-    if (evt.target.classList.contains('picture__img')) {
-      var number = evt.target.getAttribute('data-index');
+  var galleryItemClickHandler = function (evt) {
+    var isPicture = evt.target.classList.contains('picture__img');
+    if (isPicture) {
+      var index = evt.target.dataset.index;
       pictureOverlay.classList.remove('hidden');
-      window.bigpicture.renderBigPicture(galleryItems[number]);
+      window.bigpicture.renderBigPicture(currentGalleryItems[index]);
     }
   };
 
@@ -124,5 +127,5 @@
   inputPhoto.addEventListener('change', window.form.open);
   //  навешиваемся на секшн, чтобы запустить работу фильтров при клике
   filters.addEventListener('click', filtrationHandler);
-  gallery.addEventListener('click', zoomBigPictureFromLittlePicture);
+  gallery.addEventListener('click', galleryItemClickHandler);
 })();
