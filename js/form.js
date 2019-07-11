@@ -32,6 +32,8 @@
   var scaleControlBigger = photoCorrectionForm.querySelector('.scale__control--bigger');
   /** полоса, отображающая глубину эффекта */
   var effectLine = filterRange.querySelector('.effect-level__depth');
+  /** поле ввода хэштегов */
+  var inputHashtags = photoCorrectionForm.querySelector('.text__hashtags');
 
 
   /**
@@ -49,11 +51,50 @@
    * @param {evt} evt
   */
   var escapeKeydownHandler = function (evt) {
-    if (evt.keyCode === 27 && evt.target.type !== 'textarea') {
+    if (evt.keyCode === 27
+      && evt.target.type !== 'textarea'
+      && !evt.target.classList.contains('text__hashtags')) {
       close();
     }
   };
 
+  var inputHashtagsValidationHandler = function () {
+    var hashtagsArr = inputHashtags.value.split(' ');
+    var isHashtag = function (el) {
+      if (el.charAt(0) !== '#') {
+        inputHashtags.setCustomValidity('Хештег должен начинаться с #');
+      }
+    };
+    var isTooShort = function (el) {
+      if (el.length <= 1) {
+        inputHashtags.setCustomValidity('Хештег должен иметь хотя бы 1 символ после #');
+      }
+    };
+    var isTooBig = function (el) {
+      if (el.length > 20) {
+        inputHashtags.setCustomValidity('Хештег должен быть не длиннее 19 символов после #');
+      }
+    };
+
+    var filteredArr = hashtagsArr.filter(Boolean);
+    filteredArr.sort();
+    var lowerCasedArr = [];
+    if (filteredArr.length <= 5) {
+      for (var i = 0; i < filteredArr.length; i++) {
+        lowerCasedArr.push(filteredArr[i].toLowerCase());
+      }
+      for (var j = 0; j < lowerCasedArr.length; j++) {
+        isHashtag(lowerCasedArr[j]);
+        isTooShort(lowerCasedArr[j]);
+        isTooBig(lowerCasedArr[j]);
+        if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
+          inputHashtags.setCustomValidity('Хештеги не должны повторяться');
+        }
+      }
+    } else {
+      inputHashtags.setCustomValidity('Хештегов должно быть не больше 5');
+    }
+  };
 
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
   var open = function () {
@@ -199,6 +240,8 @@
   scaleControlBigger.addEventListener('click', function () {
     window.scale.bigger(image);
   });
+
+  inputHashtags.addEventListener('change', inputHashtagsValidationHandler);
 
 
   window.form = {
