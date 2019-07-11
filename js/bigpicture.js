@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var ESC_CODE = 27;
+
   var pictureOverlay = document.querySelector('.big-picture');
   var pictureImage = pictureOverlay.querySelector('.big-picture__img');
   /** кнопка "загрузить еще комментариев" */
@@ -16,14 +18,14 @@
   /** функция закрывания окна с картинкой */
   var closePictureOverlay = function () {
     pictureOverlay.classList.add('hidden');
+    document.removeEventListener('keydown', escapeKeydownHandler);
+    closePictureOverlayButton.removeEventListener('click', closePictureOverlay);
+
   };
-
-
-  closePictureOverlayButton.addEventListener('click', closePictureOverlay);
 
   //  вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
   var escapeKeydownHandler = function (evt) {
-    if (evt.keyCode === 27 && evt.target.type !== 'text') {
+    if (evt.keyCode === ESC_CODE && evt.target.type !== 'text') {
       closePictureOverlay();
     }
   };
@@ -61,11 +63,11 @@
   var renderBigPicture = function (item) {
     renderPicture(item);
     renderComments(item);
+    document.addEventListener('keydown', escapeKeydownHandler);
+    buttonMoreComments.classList.add('visually-hidden');
+    closePictureOverlayButton.addEventListener('click', closePictureOverlay);
   };
 
-  document.addEventListener('keydown', escapeKeydownHandler);
-  buttonMoreComments.classList.add('visually-hidden');
-  pictureOverlay.classList.remove('hidden');
 
   window.bigpicture = {
     renderBigPicture: renderBigPicture,
