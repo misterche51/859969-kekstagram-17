@@ -35,6 +35,9 @@
   /** поле ввода хэштегов */
   var inputHashtags = photoCorrectionForm.querySelector('.text__hashtags');
 
+  var form = document.querySelector('.img-upload__form');
+  var submitFormButton = document.querySelector('.img-upload__submit');
+
   /**
    * в завиисимости от разрешенной длины текста меняет цвет поля
    * @param {Element} element ссылка на dom-элемент
@@ -70,12 +73,12 @@
   };
 
   var inputHashtagsValidationHandler = function () {
-    inputHashtags.setCustomValidity(' ');
+    inputHashtags.setCustomValidity('');
     var hashtagsArr = inputHashtags.value.split(' ');
     var filteredArr = hashtagsArr.filter(Boolean);
     var lowerCasedArr = [];
-
     if (filteredArr.length <= 5) {
+      inputHashtags.setCustomValidity(' ');
       for (var i = 0; i < filteredArr.length; i++) {
         if (!isHashtag(filteredArr[i])) {
           inputHashtags.setCustomValidity('Хештег должен начинаться с #');
@@ -98,9 +101,15 @@
           inputHashtags.setCustomValidity('Хештеги не должны повторяться');
           return;
         }
+        else {
+          submitFormButton.addEventListener('click', function () {
+            form.submit();
+          });
+        }
       }
     } else {
       inputHashtags.setCustomValidity('Хештегов должно быть не больше 5');
+      return;
     }
   };
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
