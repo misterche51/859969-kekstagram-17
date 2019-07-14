@@ -35,7 +35,6 @@
   /** поле ввода хэштегов */
   var inputHashtags = photoCorrectionForm.querySelector('.text__hashtags');
 
-
   /**
    * в завиисимости от разрешенной длины текста меняет цвет поля
    * @param {Element} element ссылка на dom-элемент
@@ -58,44 +57,52 @@
     }
   };
 
-  var inputHashtagsValidationHandler = function () {
-    var hashtagsArr = inputHashtags.value.split(' ');
-    var isHashtag = function (el) {
-      if (el.charAt(0) !== '#') {
-        inputHashtags.setCustomValidity('Хештег должен начинаться с #');
-      }
-    };
-    var isTooShort = function (el) {
-      if (el.length <= 1) {
-        inputHashtags.setCustomValidity('Хештег должен иметь хотя бы 1 символ после #');
-      }
-    };
-    var isTooBig = function (el) {
-      if (el.length > 20) {
-        inputHashtags.setCustomValidity('Хештег должен быть не длиннее 19 символов после #');
-      }
-    };
+  var isHashtag = function (el) {
+    return el.charAt(0) === '#';
+  };
 
+  var isTooShort = function (el) {
+    return el.length > 1;
+  };
+
+  var isTooBig = function (el) {
+    return el.length < 20;
+  };
+
+  var inputHashtagsValidationHandler = function () {
+    inputHashtags.setCustomValidity(' ');
+    var hashtagsArr = inputHashtags.value.split(' ');
     var filteredArr = hashtagsArr.filter(Boolean);
-    filteredArr.sort();
     var lowerCasedArr = [];
+
     if (filteredArr.length <= 5) {
       for (var i = 0; i < filteredArr.length; i++) {
-        lowerCasedArr.push(filteredArr[i].toLowerCase());
+        if (!isHashtag(filteredArr[i])) {
+          inputHashtags.setCustomValidity('Хештег должен начинаться с #');
+          return;
+        }
+        if (!isTooShort(filteredArr[i])) {
+          inputHashtags.setCustomValidity('Хештег должен быть длиннее чем 1 символ #');
+          return;
+        }
+        if (!isTooBig(filteredArr[i])) {
+          inputHashtags.setCustomValidity('Превышена максимальная длина хештега (20 символов)');
+          return;
+        } else {
+          lowerCasedArr.push(filteredArr[i].toLowerCase());
+        }
       }
+      lowerCasedArr.sort();
       for (var j = 0; j < lowerCasedArr.length; j++) {
-        isHashtag(lowerCasedArr[j]);
-        isTooShort(lowerCasedArr[j]);
-        isTooBig(lowerCasedArr[j]);
         if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
           inputHashtags.setCustomValidity('Хештеги не должны повторяться');
+          return;
         }
       }
     } else {
       inputHashtags.setCustomValidity('Хештегов должно быть не больше 5');
     }
   };
-
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
   var open = function () {
     photoCorrectionForm.classList.remove('hidden');
@@ -103,6 +110,7 @@
     filterRange.classList.add('hidden');
     filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
     textAreaComment.addEventListener('input', textLenghtValidation);
+    inputHashtags.addEventListener('change', inputHashtagsValidationHandler);
     document.addEventListener('keydown', escapeKeydownHandler);
   };
   /** закрывает окно редактирования фотографии */
@@ -112,6 +120,7 @@
     filterList.removeEventListener('change', filterHandler);
     filterPin.removeEventListener('mousedown', filterPinMouseDownHandler);
     textAreaComment.removeEventListener('input', textLenghtValidation);
+    inputHashtags.removeEventListener('change', inputHashtagsValidationHandler);
     document.removeEventListener('keydown', escapeKeydownHandler);
   };
   /** сбрасывает значение фильтра к стандартному */
@@ -241,10 +250,9 @@
     window.scale.bigger(image);
   });
 
-  inputHashtags.addEventListener('change', inputHashtagsValidationHandler);
-
-
   window.form = {
     open: open
   };
+
+
 })();
