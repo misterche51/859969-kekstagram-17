@@ -5,6 +5,7 @@
   var URL = 'https://js.dump.academy/kekstagram/data';
   var TIMEOUT = 15000;
   var ERROR_CODE = 200;
+  var URL_SEND = 'https://js.dump.academy/kekstagram';
 
   var load = function (onSuccess, onError) {
     /** новый объект XHR */
@@ -36,7 +37,30 @@
     xhr.send();
   };
 
+  var upload = function (data, onSuccess, onError) {
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+
+    xhr.addEventListener('load', function () {
+      onSuccess(xhr.response);
+    });
+
+    xhr.addEventListener('error', function () {
+      onError();
+    });
+
+    xhr.addEventListener('timeout', function () {
+      onError();
+    });
+
+    xhr.timeout = TIMEOUT;
+
+    xhr.open('POST', URL_SEND);
+    xhr.send(data);
+  };
+
   window.api = {
     load: load,
+    upload: upload,
   };
 })();

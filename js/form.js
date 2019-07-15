@@ -5,6 +5,8 @@
   var ALLOWED_TEXT_LENGHT = 140;
   /** стандартное значение value у input.effect-level__value */
   var FILTER_DEFAULT_VALUE = 100;
+  /** максимальное количество хэштегов */
+  var MAX_HASHTAGS = 5;
 
   /** input type="file" для загрузки изображений в сервис */
   var inputPhoto = document.querySelector('#upload-file');
@@ -36,7 +38,6 @@
   var inputHashtags = photoCorrectionForm.querySelector('.text__hashtags');
 
   var form = document.querySelector('.img-upload__form');
-  var submitFormButton = document.querySelector('.img-upload__submit');
 
   /**
    * в завиисимости от разрешенной длины текста меняет цвет поля
@@ -76,40 +77,34 @@
     inputHashtags.setCustomValidity('');
     var hashtagsArr = inputHashtags.value.split(' ');
     var filteredArr = hashtagsArr.filter(Boolean);
-    var lowerCasedArr = [];
-    if (filteredArr.length <= 5) {
-      inputHashtags.setCustomValidity(' ');
-      for (var i = 0; i < filteredArr.length; i++) {
-        if (!isHashtag(filteredArr[i])) {
-          inputHashtags.setCustomValidity('Хештег должен начинаться с #');
-          return;
-        }
-        if (!isTooShort(filteredArr[i])) {
-          inputHashtags.setCustomValidity('Хештег должен быть длиннее чем 1 символ #');
-          return;
-        }
-        if (!isTooBig(filteredArr[i])) {
-          inputHashtags.setCustomValidity('Превышена максимальная длина хештега (20 символов)');
-          return;
-        } else {
-          lowerCasedArr.push(filteredArr[i].toLowerCase());
-        }
-      }
-      lowerCasedArr.sort();
-      for (var j = 0; j < lowerCasedArr.length; j++) {
-        if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
-          inputHashtags.setCustomValidity('Хештеги не должны повторяться');
-          return;
-        }
-        else {
-          submitFormButton.addEventListener('click', function () {
-            form.submit();
-          });
-        }
-      }
-    } else {
-      inputHashtags.setCustomValidity('Хештегов должно быть не больше 5');
+    if (filteredArr.length > MAX_HASHTAGS) {
+      inputHashtags.setCustomValidity('Хештегов не должно быть больше 5');
       return;
+    }
+    for (var i = 0; i < filteredArr.length; i++) {
+      if (!isHashtag(filteredArr[i])) {
+        inputHashtags.setCustomValidity('Хештег должен начинаться с #');
+        return;
+      }
+      if (!isTooShort(filteredArr[i])) {
+        inputHashtags.setCustomValidity('Хештег должен быть длиннее чем 1 символ #');
+        return;
+      }
+      if (!isTooBig(filteredArr[i])) {
+        inputHashtags.setCustomValidity('Превышена максимальная длина хештега (20 символов)');
+        return;
+      }
+    }
+    var lowerCasedArr = filteredArr.map(function (it) {
+      return it.toLowerCase();
+    }).sort();
+    for (var j = 0; j < lowerCasedArr.length; j++) {
+      if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
+        inputHashtags.setCustomValidity('Хештеги не должны повторяться');
+        return;
+      } else {
+        inputHashtags.setCustomValidity('');
+      }
     }
   };
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
@@ -259,8 +254,58 @@
     window.scale.bigger(image);
   });
 
+  var mainContainer = document.querySelector('main');
+  var successTemplate = document.querySelector('#success')
+      .content
+      .querySelector('.success');
+  var errorTemplate = document.querySelector('#error')
+      .content
+      .querySelector('.error');
+
+  var renderMessage = function (template) {
+    var fragment = document.createDocumentFragment();
+    fragment.appendChild(template);
+    mainContainer.insertBefore(fragment, mainContainer.firstChild);
+  };
+
+  var formSendHandler = function (resultTemplate) {
+    photoCorrectionForm.classList.add('hidden');
+    renderMessage(resultTemplate);
+    var closeMessage = function () {
+      mainContainer.removeChild(mainContainer.firstChild);
+    };
+    var overlay = document.querySelector('section');
+    var messageBox = overlay.querySelector('div');
+    var button = mainContainer.firstChild.querySelectorAll('button');
+    for (var i = 0; i < button.length; i++) {
+      button[i].addEventListener('click', closeMessage);
+    }
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === 27) {
+        closeMessage();
+      }
+    });
+    overlay.addEventListener('click', function (evt) {
+      if (evt.target !== messageBox) {
+        closeMessage();
+      }
+    });
+  };
+
+  form.addEventListener('submit', function (evt) {
+    window.api.upload(new FormData(form),
+        function () {
+          formSendHandler(successTemplate);
+        },
+        function () {
+          formSendHandler(errorTemplate);
+        }
+    );
+    evt.preventDefault();
+  });
+
   window.form = {
-    open: open
+    open: open,
   };
 
 
