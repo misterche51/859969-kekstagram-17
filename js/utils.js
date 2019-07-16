@@ -3,7 +3,7 @@
   /** вспомогательная переменная для debounceHandler */
   var lastTimeout;
   var TIMEOUT_VALUE = 500;
-  var ESCAPE_KEYCODE = 27;
+  // var ESCAPE_KEYCODE = 27;
   /** функция удаления дребезжания
  * @param {callback} f
  */
@@ -43,17 +43,17 @@
    * @param {String} fn -- навание функции
    * @param {String} fieldType
    */
-  var escapeKeyDownHandler = function (evt, fn, fieldType) {
-    if (evt.keycode === ESCAPE_KEYCODE && evt.target.type !== fieldType) {
-      fn();
-    }
-  };
+  // var escapeKeyDownHandler = function (evt, fn, fieldType) {
+  //   if (evt.keycode === ESCAPE_KEYCODE && evt.target.type !== fieldType) {
+  //     fn();
+  //   }
+  // };
 
 
   window.utils = {
     debounceHandler: debounceHandler,
     getShuffleArray: getShuffleArray,
     getRandomNumber: getRandomNumber,
-    escapeKeyDownHandler: escapeKeyDownHandler,
+    // escapeKeyDownHandler: escapeKeyDownHandler,
   };
 })();

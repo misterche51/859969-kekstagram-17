@@ -73,6 +73,21 @@
     return el.length < 20;
   };
 
+  var isHashtagRepeat = function (arr, field) {
+    var lowerCasedArr = arr.map(function (it) {
+      return it.toLowerCase();
+    }).sort();
+    for (var j = 0; j < lowerCasedArr.length; j++) {
+      if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
+        field.setCustomValidity('Хештеги не должны повторяться');
+        return;
+      } else {
+        field.setCustomValidity('');
+      }
+    }
+  };
+
+
   var inputHashtagsValidationHandler = function () {
     inputHashtags.setCustomValidity('');
     var hashtagsArr = inputHashtags.value.split(' ');
@@ -95,18 +110,12 @@
         return;
       }
     }
-    var lowerCasedArr = filteredArr.map(function (it) {
-      return it.toLowerCase();
-    }).sort();
-    for (var j = 0; j < lowerCasedArr.length; j++) {
-      if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
-        inputHashtags.setCustomValidity('Хештеги не должны повторяться');
-        return;
-      } else {
-        inputHashtags.setCustomValidity('');
-      }
-    }
+    isHashtagRepeat(filteredArr, inputHashtags);
   };
+
+  form.addEventListener('submit', function (evt) {
+    window.sendmessage(evt, form, photoCorrectionForm);
+  });
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
   var open = function () {
     photoCorrectionForm.classList.remove('hidden');
@@ -254,59 +263,57 @@
     window.scale.bigger(image);
   });
 
-  var mainContainer = document.querySelector('main');
-  var successTemplate = document.querySelector('#success')
-      .content
-      .querySelector('.success');
-  var errorTemplate = document.querySelector('#error')
-      .content
-      .querySelector('.error');
+  // var mainContainer = document.querySelector('main');
+  // var successTemplate = document.querySelector('#success')
+  //     .content
+  //     .querySelector('.success');
+  // var errorTemplate = document.querySelector('#error')
+  //     .content
+  //     .querySelector('.error');
 
-  var renderMessage = function (template) {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(template);
-    mainContainer.insertBefore(fragment, mainContainer.firstChild);
-  };
+  // var renderMessage = function (template) {
+  //   var fragment = document.createDocumentFragment();
+  //   fragment.appendChild(template);
+  //   mainContainer.insertBefore(fragment, mainContainer.firstChild);
+  // };
 
-  var formSendHandler = function (resultTemplate) {
-    photoCorrectionForm.classList.add('hidden');
-    renderMessage(resultTemplate);
-    var closeMessage = function () {
-      mainContainer.removeChild(mainContainer.firstChild);
-    };
-    var overlay = document.querySelector('section');
-    var messageBox = overlay.querySelector('div');
-    var button = mainContainer.firstChild.querySelectorAll('button');
-    for (var i = 0; i < button.length; i++) {
-      button[i].addEventListener('click', closeMessage);
-    }
-    document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === 27) {
-        closeMessage();
-      }
-    });
-    overlay.addEventListener('click', function (evt) {
-      if (evt.target !== messageBox) {
-        closeMessage();
-      }
-    });
-  };
+  // var formSendHandler = function (resultTemplate) {
+  //   photoCorrectionForm.classList.add('hidden');
+  //   renderMessage(resultTemplate);
+  //   var closeMessage = function () {
+  //     mainContainer.removeChild(mainContainer.firstChild);
+  //   };
+  //   var overlay = document.querySelector('section');
+  //   var messageBox = overlay.querySelector('div');
+  //   var button = mainContainer.firstChild.querySelectorAll('button');
+  //   for (var i = 0; i < button.length; i++) {
+  //     button[i].addEventListener('click', closeMessage);
+  //   }
+  //   document.addEventListener('keydown', function (evt) {
+  //     if (evt.keyCode === 27) {
+  //       closeMessage();
+  //     }
+  //   });
+  //   overlay.addEventListener('click', function (evt) {
+  //     if (evt.target !== messageBox) {
+  //       closeMessage();
+  //     }
+  //   });
+  // };
 
-  form.addEventListener('submit', function (evt) {
-    window.api.upload(new FormData(form),
-        function () {
-          formSendHandler(successTemplate);
-        },
-        function () {
-          formSendHandler(errorTemplate);
-        }
-    );
-    evt.preventDefault();
-  });
+  // form.addEventListener('submit', function (evt) {
+  //   window.api.upload(new FormData(form),
+  //       function () {
+  //         formSendHandler(successTemplate);
+  //       },
+  //       function () {
+  //         formSendHandler(errorTemplate);
+  //       }
+  //   );
+  //   evt.preventDefault();
+  // });
 
   window.form = {
     open: open,
   };
-
-
 })();
