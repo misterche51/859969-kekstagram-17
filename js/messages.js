@@ -40,19 +40,6 @@
   };
 
 
-  // window.sendmessage = function (evt, form, eventBox) {
-  //   window.api.upload(new FormData(form),
-  //       function () {
-  //         formSendHandler(successTemplate, eventBox);
-  //       },
-  //       function () {
-  //         formSendHandler(errorTemplate, eventBox);
-  //       }
-  //   );
-  //   evt.preventDefault();
-  // };
-
-
   window.sendmessage = function (evt, form, eventBox) {
     window.api.upload(new FormData(form),
         function () {
