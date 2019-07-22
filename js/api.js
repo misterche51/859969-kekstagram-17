@@ -2,23 +2,20 @@
 // модуль работы с галереей на главной
 (function () {
   /** ссылка на сервер */
-  var URL = 'https://js.dump.academy/kekstagram/data';
   var TIMEOUT = 15000;
-  var ERROR_CODE = 200;
-  var URL_SEND = 'https://js.dump.academy/kekstagram';
+  var SUCCESS_CODE = 200;
+  var URL = 'https://js.dump.academy/kekstagram';
 
-  var load = function (onSuccess, onError) {
-    /** новый объект XHR */
+
+  var ajax = function (onSuccess, onError) {
     var xhr = new XMLHttpRequest();
-    //  ожидаемый тип данных с сервера json
     xhr.responseType = 'json';
-    // навешиваю обработчик на событие LOAD, если данные пришли с сервера и все хорошо
-    // тогда выполняется CB onSuccess с полученными с сервера данными (xhr.response)
+
     xhr.addEventListener('load', function () {
-      if (xhr.status === ERROR_CODE) {
+      if (xhr.status === SUCCESS_CODE) {
         onSuccess(xhr.response);
       } else {
-        onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
+        onError();
       }
     });
 
@@ -31,31 +28,19 @@
     });
 
     xhr.timeout = TIMEOUT;
-    //  открываю соединение с севрером с помощью метода GET
-    xhr.open('GET', URL);
-    // отправляю запрос
+
+    return xhr;
+  };
+
+  var load = function (onSuccess, onError) {
+    var xhr = ajax(onSuccess, onError);
+    xhr.open('GET', URL + '/data');
     xhr.send();
   };
 
   var upload = function (data, onSuccess, onError) {
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-
-    xhr.addEventListener('load', function () {
-      onSuccess(xhr.response);
-    });
-
-    xhr.addEventListener('error', function () {
-      onError();
-    });
-
-    xhr.addEventListener('timeout', function () {
-      onError();
-    });
-
-    xhr.timeout = TIMEOUT;
-
-    xhr.open('POST', URL_SEND);
+    var xhr = ajax(onSuccess, onError);
+    xhr.open('POST', URL);
     xhr.send(data);
   };
 
@@ -64,3 +49,5 @@
     upload: upload,
   };
 })();
+
+

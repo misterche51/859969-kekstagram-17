@@ -56,15 +56,18 @@
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < item.comments.length; i++) {
       fragment.appendChild(createComment(item.comments[i]));
+      if (item.comments.length <= 5) {
+        buttonMoreComments.classList.add('visually-hidden');
+      }
     }
     commentsList.appendChild(fragment);
   };
+
 
   var renderBigPicture = function (item) {
     renderPicture(item);
     renderComments(item);
     document.addEventListener('keydown', escapeKeydownHandler);
-    buttonMoreComments.classList.add('visually-hidden');
     closePictureOverlayButton.addEventListener('click', closePictureOverlay);
   };
 
