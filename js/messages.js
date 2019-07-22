@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var ESC_CODE = 27;
   var mainContainer = document.querySelector('main');
   var successTemplate = document.querySelector('#success')
       .content
@@ -10,9 +11,7 @@
       .querySelector('.error');
 
   var renderMessage = function (template) {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(template);
-    mainContainer.insertBefore(fragment, mainContainer.firstChild);
+    mainContainer.insertBefore(template, mainContainer.firstChild);
   };
 
   var formSendHandler = function (resultTemplate, form) {
@@ -23,17 +22,18 @@
     };
     var overlay = document.querySelector('section');
     var messageBox = overlay.querySelector('div');
+    var headline = overlay.querySelector('h2');
     var button = mainContainer.firstChild.querySelectorAll('button');
     for (var i = 0; i < button.length; i++) {
       button[i].addEventListener('click', closeMessage);
     }
     document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === 27) {
+      if (evt.keyCode === ESC_CODE) {
         closeMessage();
       }
     });
     overlay.addEventListener('click', function (evt) {
-      if (evt.target !== messageBox) {
+      if (evt.target !== messageBox && evt.target !== headline) {
         closeMessage();
       }
     });

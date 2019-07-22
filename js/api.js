@@ -2,10 +2,9 @@
 // модуль работы с галереей на главной
 (function () {
   /** ссылка на сервер */
-  var URL = 'https://js.dump.academy/kekstagram/data';
   var TIMEOUT = 15000;
-  var ERROR_CODE = 200;
-  var URL_SEND = 'https://js.dump.academy/kekstagram';
+  var SUCCESS_CODE = 200;
+  var URL = 'https://js.dump.academy/kekstagram';
 
 
   var ajax = function (onSuccess, onError) {
@@ -13,7 +12,7 @@
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === ERROR_CODE) {
+      if (xhr.status === SUCCESS_CODE) {
         onSuccess(xhr.response);
       } else {
         onError();
@@ -35,13 +34,13 @@
 
   var load = function (onSuccess, onError) {
     var xhr = ajax(onSuccess, onError);
-    xhr.open('GET', URL);
+    xhr.open('GET', URL + '/data');
     xhr.send();
   };
 
   var upload = function (data, onSuccess, onError) {
     var xhr = ajax(onSuccess, onError);
-    xhr.open('POST', URL_SEND);
+    xhr.open('POST', URL);
     xhr.send(data);
   };
 
@@ -50,3 +49,5 @@
     upload: upload,
   };
 })();
+
+
