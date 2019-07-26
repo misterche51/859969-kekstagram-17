@@ -7,7 +7,16 @@
   var FILTER_DEFAULT_VALUE = 100;
   /** максимальное количество хэштегов */
   var MAX_HASHTAGS = 5;
-
+  /**
+   * @description объект со значениями ограничений длины одного хештега
+   * @prop {Number} MIN -- минимальный предел
+   * @prop {Number} MAX -- максимальный предел
+   *
+   */
+  var HASHTAG_LENGTH = {
+    MIN: 1,
+    MAX: 20,
+  };
   /** input type="file" для загрузки изображений в сервис */
   var inputPhoto = document.querySelector('#upload-file');
   /** div с элементами для редактирования загруженного файла */
@@ -39,11 +48,19 @@
 
   var form = document.querySelector('.img-upload__form');
 
+  var scaleControlSmallerHandler = function () {
+    return window.scale.smaller(image);
+  };
+
+  var scaleControlBiggerHandler = function () {
+    return window.scale.bigger(image);
+  };
+
   /**
    * в завиисимости от разрешенной длины текста меняет цвет поля
    * @param {Element} element ссылка на dom-элемент
    */
-  var textLenghtValidation = function () {
+  var validateTextLength = function () {
     if (textAreaComment.value.length === ALLOWED_TEXT_LENGHT) {
       textAreaComment.style.background = 'red';
     } else {
@@ -57,7 +74,7 @@
     if (evt.keyCode === 27
       && evt.target.type !== 'textarea'
       && !evt.target.classList.contains('text__hashtags')) {
-      close();
+      closeForm();
     }
   };
 
@@ -66,86 +83,96 @@
   };
 
   var isTooShort = function (el) {
-    return el.length > 1;
+    return el.length > HASHTAG_LENGTH.MIN;
   };
 
   var isTooBig = function (el) {
-    return el.length < 20;
+    return el.length < HASHTAG_LENGTH.MAX;
   };
 
-  var isHashtagRepeat = function (arr, field) {
+  var isHashtagRepeat = function (arr) {
     var lowerCasedArr = arr.map(function (it) {
       return it.toLowerCase();
     }).sort();
     for (var j = 0; j < lowerCasedArr.length; j++) {
-      if (lowerCasedArr[j] === lowerCasedArr[j + 1]) {
-        field.setCustomValidity('Хештеги не должны повторяться');
-        return;
-      } else {
-        field.setCustomValidity('');
+      if (lowerCasedArr[j] !== lowerCasedArr[j + 1]) {
+        return false;
       }
-    }
+        return true;
+      }
   };
-
 
   var inputHashtagsValidationHandler = function () {
     inputHashtags.setCustomValidity('');
-    var hashtagsArr = inputHashtags.value.split(' ');
-    var filteredArr = hashtagsArr.filter(Boolean);
-    if (filteredArr.length > MAX_HASHTAGS) {
+    var hashtags = inputHashtags.value.split(' ').filter(Boolean);
+    if (hashtags.length > MAX_HASHTAGS) {
       inputHashtags.setCustomValidity('Хештегов не должно быть больше 5');
       return;
     }
-    for (var i = 0; i < filteredArr.length; i++) {
-      if (!isHashtag(filteredArr[i])) {
+    if (isHashtagRepeat(hashtags)) {
+      inputHashtags.setCustomValidity('Хештеги не должны повторяться');
+      return;
+    }
+    for (var i = 0; i < hashtags.length; i++) {
+      if (!isHashtag(hashtags[i])) {
         inputHashtags.setCustomValidity('Хештег должен начинаться с #');
         return;
       }
-      if (!isTooShort(filteredArr[i])) {
+      if (!isTooShort(hashtags[i])) {
         inputHashtags.setCustomValidity('Хештег должен быть длиннее чем 1 символ #');
         return;
       }
-      if (!isTooBig(filteredArr[i])) {
+      if (!isTooBig(hashtags[i])) {
         inputHashtags.setCustomValidity('Превышена максимальная длина хештега (20 символов)');
         return;
       }
+      // } else {
+      //   inputHashtags.setCustomValidity('');
+      // }
     }
-    isHashtagRepeat(filteredArr, inputHashtags);
+    inputHashtags.setCustomValidity('');
   };
 
   form.addEventListener('submit', function (evt) {
     window.sendmessage(evt, form, photoCorrectionForm);
   });
+
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
-  var open = function () {
+  var openForm = function () {
     photoCorrectionForm.classList.remove('hidden');
     filterList.addEventListener('change', filterHandler);
     filterRange.classList.add('hidden');
     filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
-    textAreaComment.addEventListener('input', textLenghtValidation);
+    textAreaComment.addEventListener('input', validateTextLength);
     inputHashtags.addEventListener('change', inputHashtagsValidationHandler);
     document.addEventListener('keydown', escapeKeydownHandler);
+    scaleControlSmaller.addEventListener('click', scaleControlSmallerHandler);
+    scaleControlBigger.addEventListener('click', scaleControlBiggerHandler);
+    window.scale.reset(image);
   };
+
   /** закрывает окно редактирования фотографии */
-  var close = function () {
+  var closeForm = function () {
     photoCorrectionForm.classList.add('hidden');
     inputPhoto.value = null;
     filterList.removeEventListener('change', filterHandler);
     filterPin.removeEventListener('mousedown', filterPinMouseDownHandler);
-    textAreaComment.removeEventListener('input', textLenghtValidation);
+    textAreaComment.removeEventListener('input', validateTextLength);
     inputHashtags.removeEventListener('change', inputHashtagsValidationHandler);
     document.removeEventListener('keydown', escapeKeydownHandler);
+    scaleControlSmaller.removeEventListener('click', scaleControlSmallerHandler);
+    scaleControlBigger.removeEventListener('click', scaleControlBiggerHandler);
   };
   /** сбрасывает значение фильтра к стандартному */
-  var filterValueReset = function () {
+  var resetFilterValue = function () {
     filterValue.setAttribute('value', FILTER_DEFAULT_VALUE);
   };
   /** убирает все лишние классы с фото */
-  var imageClassListReset = function () {
+  var resetImageClassList = function () {
     image.classList = 'img-upload__preview';
   };
   /** удаляет стиль фильтра у фото */
-  var imageInlineStyleDelete = function () {
+  var deleteImageInlineStyle = function () {
     image.removeAttribute('style');
   };
   /**
@@ -174,11 +201,11 @@
     }
   };
   /** общий сброс стилей с фото */
-  var filterReboot = function () {
+  var rebootFilter = function () {
     image.removeAttribute('style');
-    filterValueReset();
-    imageClassListReset();
-    imageInlineStyleDelete();
+    resetFilterValue();
+    resetImageClassList();
+    deleteImageInlineStyle();
     filterPin.style.left = filterPin.parentNode.offsetWidth + 'px';
     effectLine.style.width = filterPin.parentNode.offsetWidth + 'px';
   };
@@ -198,7 +225,7 @@
       filterRange.classList.remove('hidden');
     }
 
-    filterReboot();
+    rebootFilter();
     /** новый класс в зависимости от значиния выбранного инпута */
     var className = 'effects__preview--' + value;
     image.classList.add(className);
@@ -254,16 +281,9 @@
   };
 
 
-  buttonClose.addEventListener('click', close);
-
-  scaleControlSmaller.addEventListener('click', function () {
-    window.scale.smaller(image);
-  });
-  scaleControlBigger.addEventListener('click', function () {
-    window.scale.bigger(image);
-  });
+  buttonClose.addEventListener('click', closeForm);
 
   window.form = {
-    open: open,
+    open: openForm,
   };
 })();

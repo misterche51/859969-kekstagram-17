@@ -2,8 +2,13 @@
 
 (function () {
   var ESC_CODE = 27;
+  var MIN_COMMENTS = 5;
+  var COMMENTS_GAP = 5;
+
+  var currentLastComment;
 
   var pictureOverlay = document.querySelector('.big-picture');
+
   var pictureImage = pictureOverlay.querySelector('.big-picture__img');
   /** кнопка "загрузить еще комментариев" */
   var buttonMoreComments = pictureOverlay.querySelector('.comments-loader');
@@ -20,7 +25,6 @@
     pictureOverlay.classList.add('hidden');
     document.removeEventListener('keydown', escapeKeydownHandler);
     closePictureOverlayButton.removeEventListener('click', closePictureOverlay);
-
   };
 
   //  вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
@@ -39,6 +43,7 @@
     pictureOverlay.querySelector('.likes-count').textContent = item.likes;
     pictureOverlay.querySelector('.social__caption').textContent = item.description;
     pictureOverlay.querySelector('.comments-count').textContent = item.comments.length;
+
   };
 
   var getRandomAvatar = function (min, max) {
@@ -53,14 +58,16 @@
   };
 
   var renderComments = function (item) {
+    clearCommentsList();
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < item.comments.length; i++) {
       fragment.appendChild(createComment(item.comments[i]));
-      if (item.comments.length <= 5) {
-        buttonMoreComments.classList.add('visually-hidden');
-      }
     }
     commentsList.appendChild(fragment);
+  };
+
+  var clearCommentsList = function () {
+    commentsList.innerHTML = '';
   };
 
 
@@ -69,8 +76,40 @@
     renderComments(item);
     document.addEventListener('keydown', escapeKeydownHandler);
     closePictureOverlayButton.addEventListener('click', closePictureOverlay);
+    moreComments(item);
   };
 
+
+  var hideComments = function (item, commentaries) {
+    for (var i = MIN_COMMENTS; i < item.comments.length; i++) {
+      commentaries[i].classList.add('visually-hidden');
+    }
+  };
+
+  var moreComments = function (item) {
+    var commentaries = pictureOverlay.querySelectorAll('.social__comment');
+    buttonMoreComments.classList.remove('visually-hidden');
+    hideComments(item, commentaries);
+    currentLastComment = MIN_COMMENTS;
+    if (item.comments.length <= MIN_COMMENTS) {
+      buttonMoreComments.classList.add('visually-hidden');
+    }
+    buttonMoreComments.addEventListener('click', function () {
+      var nextComments = currentLastComment + COMMENTS_GAP;
+      if (nextComments >= item.comments.length) {
+        for (var j = currentLastComment; j < item.comments.length; j++) {
+          commentaries[j].classList.remove('visually-hidden');
+          buttonMoreComments.classList.add('visually-hidden');
+        }
+      } else {
+        for (var k = currentLastComment; k < nextComments; k++) {
+          buttonMoreComments.classList.remove('visually-hidden');
+          commentaries[k].classList.remove('visually-hidden');
+        }
+        currentLastComment = nextComments;
+      }
+    });
+  };
 
   window.bigpicture = {
     renderBigPicture: renderBigPicture,

@@ -44,9 +44,15 @@
     }
   };
 
+  var resetScale = function (scalableFigure) {
+    scaleValue.value = SCALE_OF_PHOTO.MAX + '%';
+    scalableFigure.removeAttribute('style');
+  };
+
   // экспортирую методы в глобальную облатсь видимости
   window.scale = {
     smaller: scaleControlSmallerClickHandler,
     bigger: scaleControlBiggerClickHandler,
+    reset: resetScale,
   };
 })();

@@ -48,20 +48,20 @@
    * @param {Array} arr
    * @return {Array}
   */
-  var newestItems = function (arr) {
+  var getNewestItems = function (arr) {
     return window.utils.getShuffleArray(arr).slice(0, 10);
   };
   /** Функция создает отсортированный массив по количеству комменатриев
    * @param {Array} arr
    * @return {Array}
   */
-  var hottestItems = function (arr) {
+  var getHottestItems = function (arr) {
     return arr.slice(0).sort(sortingByComments);
   };
   /** мапа для реализации отображения нужной галереи в зависимости от выбранного фильтпа */
   var idToRenderGallery = {
-    'new': newestItems,
-    'discussed': hottestItems
+    'new': getNewestItems,
+    'discussed': getHottestItems
   };
 
   //  --------------------------------------------------
@@ -113,35 +113,6 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-
-  var MIN_COMMENTS = 5;
-  var COMMENTS_GAP = 5;
-  var currentLastComment;
-
-  var hideComments = function () {
-    var bigPictureOverlay = document.querySelector('.big-picture');
-    var comments = bigPictureOverlay.querySelectorAll('.social__comment');
-    var buttonMoreComments = bigPictureOverlay.querySelector('.comments-loader');
-    for (var i = MIN_COMMENTS; i < comments.length; i++) {
-      comments[i].classList.add('visually-hidden');
-    }
-    currentLastComment = MIN_COMMENTS + 1;
-    buttonMoreComments.addEventListener('click', function () {
-      var nextComments = currentLastComment + COMMENTS_GAP;
-      if (nextComments >= comments.length) {
-        for (var j = currentLastComment; j < comments.length; j++) {
-          comments[j].classList.remove('visually-hidden');
-          buttonMoreComments.classList.add('visually-hidden');
-        }
-      } else {
-        for (var k = currentLastComment; k < nextComments; k++) {
-          comments[k].classList.remove('visually-hidden');
-        }
-        currentLastComment = nextComments + 1;
-      }
-    });
-  };
-
   var galleryItemClickHandler = function (evt) {
     var isPicture = evt.target.classList.contains('picture__img');
     if (isPicture) {
@@ -149,7 +120,7 @@
       pictureOverlay.classList.remove('hidden');
       window.bigpicture.renderBigPicture(currentGalleryItems[index]);
     }
-    hideComments();
+
   };
 
 
