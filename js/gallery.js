@@ -16,9 +16,9 @@
 
   /** сбрасывает стиль активности со всех батонов */
   var dropActiveStyle = function () {
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].classList.remove('img-filters__button--active');
-    }
+    buttons.forEach(function (element) {
+      element.classList.remove('img-filters__button--active');
+    });
   };
   /** функция описывается работу фильтров галереи
    * @param {evt} evt
@@ -69,9 +69,9 @@
   /** очищает галерею от всех фотографий */
   var deletePictures = function () {
     var pictures = document.querySelectorAll('.picture');
-    for (var i = 0; i < pictures.length; i++) {
-      pictures[i].remove();
-    }
+    pictures.forEach(function (element) {
+      element.remove();
+    });
   };
   /**
    * функция выполняется при успешной загрузке данных с сервера
@@ -113,21 +113,34 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
+  var showBigPicture = function (index) {
+    pictureOverlay.classList.remove('hidden');
+    window.renderBigPicture(currentGalleryItems[index]);
+  };
+
   var galleryItemClickHandler = function (evt) {
     var isPicture = evt.target.classList.contains('picture__img');
     if (isPicture) {
       var index = evt.target.dataset.index;
-      pictureOverlay.classList.remove('hidden');
-      window.bigpicture.renderBigPicture(currentGalleryItems[index]);
+      showBigPicture(index);
     }
+  };
 
+  var galleryItemKeydownHandler = function (evt) {
+    var isPicture = evt.target.classList.contains('picture');
+    if (isPicture && window.utils.isEnterPressed(evt)) {
+      evt.preventDefault();
+      var index = evt.target.querySelector('img').dataset.index;
+      showBigPicture(index);
+    }
   };
 
 
   window.api.load(successHandler, errorHandler);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
-  inputPhoto.addEventListener('change', window.form.open);
+  inputPhoto.addEventListener('change', window.openForm);
   //  навешиваемся на секшн, чтобы запустить работу фильтров при клике
   filters.addEventListener('click', filtrationHandler);
   gallery.addEventListener('click', galleryItemClickHandler);
+  gallery.addEventListener('keydown', galleryItemKeydownHandler);
 })();

@@ -1,14 +1,14 @@
 'use strict';
 
 (function () {
-  var ESC_CODE = 27;
   var MIN_COMMENTS = 5;
   var COMMENTS_GAP = 5;
 
-  var currentLastComment;
+  var startComment = null;
+  var stopComment = null;
+  var currentComments = null;
 
   var pictureOverlay = document.querySelector('.big-picture');
-
   var pictureImage = pictureOverlay.querySelector('.big-picture__img');
   /** кнопка "загрузить еще комментариев" */
   var buttonMoreComments = pictureOverlay.querySelector('.comments-loader');
@@ -20,16 +20,19 @@
     .querySelector('.social__comment');
   /** кнопка закрыть окно с картинкой */
   var closePictureOverlayButton = pictureOverlay.querySelector('.big-picture__cancel');
+
+
   /** функция закрывания окна с картинкой */
   var closePictureOverlay = function () {
     pictureOverlay.classList.add('hidden');
     document.removeEventListener('keydown', escapeKeydownHandler);
     closePictureOverlayButton.removeEventListener('click', closePictureOverlay);
+    buttonMoreComments.removeEventListener('click', buttonMoreComments.fn);
   };
 
-  //  вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
+  // вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
   var escapeKeydownHandler = function (evt) {
-    if (evt.keyCode === ESC_CODE && evt.target.type !== 'text') {
+    if (window.utils.isEscPressed(evt) && evt.target.type !== 'text') {
       closePictureOverlay();
     }
   };
@@ -45,11 +48,19 @@
     pictureOverlay.querySelector('.comments-count').textContent = item.comments.length;
 
   };
-
+  /** генерация произвольного аватара для комментария
+   * @param {Number} min
+   * @param {Number} max
+   * @return {String} ссылка на рандомный аватар комментатора
+  */
   var getRandomAvatar = function (min, max) {
     return 'img/avatar-' + window.utils.getRandomNumber(min, max) + '.svg';
   };
 
+  /** создает комментарий по шаблону
+   * @param {Object} item
+   * @return {DOMElement}
+  */
   var createComment = function (item) {
     var newComment = commentTemplate.cloneNode(true);
     newComment.querySelector('.social__picture').src = getRandomAvatar(1, 6);
@@ -57,61 +68,53 @@
     return newComment;
   };
 
-  var renderComments = function (item) {
-    clearCommentsList();
+  /** отображает комментарии в DOM
+   * @param {Array} comments -- массив комментариев из объекта
+  */
+  var renderComments = function (comments) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < item.comments.length; i++) {
-      fragment.appendChild(createComment(item.comments[i]));
+    for (var i = 0; i < comments.length; i++) {
+      fragment.appendChild(createComment(comments[i]));
     }
     commentsList.appendChild(fragment);
   };
-
+  /** очищает dom-дерево от комментариев предыущего айтема */
   var clearCommentsList = function () {
     commentsList.innerHTML = '';
+    buttonMoreComments.classList.add('visually-hidden');
   };
-
-
-  var renderBigPicture = function (item) {
-    renderPicture(item);
-    renderComments(item);
-    document.addEventListener('keydown', escapeKeydownHandler);
-    closePictureOverlayButton.addEventListener('click', closePictureOverlay);
-    moreComments(item);
-  };
-
-
-  var hideComments = function (item, commentaries) {
-    for (var i = MIN_COMMENTS; i < item.comments.length; i++) {
-      commentaries[i].classList.add('visually-hidden');
-    }
-  };
-
-  var moreComments = function (item) {
-    var commentaries = pictureOverlay.querySelectorAll('.social__comment');
-    buttonMoreComments.classList.remove('visually-hidden');
-    hideComments(item, commentaries);
-    currentLastComment = MIN_COMMENTS;
-    if (item.comments.length <= MIN_COMMENTS) {
+  /** добавляет еще непоказанные комментарии в dom
+   *  @param {Array} comments -- массив комментариев из объекта
+  */
+  var addComments = function (comments) {
+    startComment += COMMENTS_GAP;
+    stopComment += COMMENTS_GAP;
+    currentComments = comments.slice(startComment, stopComment);
+    renderComments(currentComments);
+    if (stopComment > comments.length) {
+      stopComment = comments.length;
       buttonMoreComments.classList.add('visually-hidden');
     }
-    buttonMoreComments.addEventListener('click', function () {
-      var nextComments = currentLastComment + COMMENTS_GAP;
-      if (nextComments >= item.comments.length) {
-        for (var j = currentLastComment; j < item.comments.length; j++) {
-          commentaries[j].classList.remove('visually-hidden');
-          buttonMoreComments.classList.add('visually-hidden');
-        }
-      } else {
-        for (var k = currentLastComment; k < nextComments; k++) {
-          buttonMoreComments.classList.remove('visually-hidden');
-          commentaries[k].classList.remove('visually-hidden');
-        }
-        currentLastComment = nextComments;
-      }
-    });
   };
 
-  window.bigpicture = {
-    renderBigPicture: renderBigPicture,
+
+  window.renderBigPicture = function (item) {
+    clearCommentsList();
+    renderPicture(item);
+    var comments = item.comments;
+    if (comments.length <= MIN_COMMENTS) {
+      renderComments(comments);
+    } else {
+      buttonMoreComments.classList.remove('visually-hidden');
+      startComment = 0;
+      stopComment = MIN_COMMENTS;
+      currentComments = comments.slice(startComment, stopComment);
+      renderComments(currentComments);
+      buttonMoreComments.addEventListener('click', buttonMoreComments.fn = function () {
+        addComments(comments);
+      });
+    }
+    document.addEventListener('keydown', escapeKeydownHandler);
+    closePictureOverlayButton.addEventListener('click', closePictureOverlay);
   };
 })();

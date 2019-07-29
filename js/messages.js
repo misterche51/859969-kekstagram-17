@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var ESC_CODE = 27;
   var mainContainer = document.querySelector('main');
   var successTemplate = document.querySelector('#success')
       .content
@@ -23,12 +22,13 @@
     var overlay = document.querySelector('section');
     var messageBox = overlay.querySelector('div');
     var headline = overlay.querySelector('h2');
-    var button = mainContainer.firstChild.querySelectorAll('button');
-    for (var i = 0; i < button.length; i++) {
-      button[i].addEventListener('click', closeMessage);
-    }
+    var buttons = mainContainer.firstChild.querySelectorAll('button');
+    buttons.forEach(function (element) {
+      element.addEventListener('click', closeMessage);
+    });
+
     document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ESC_CODE) {
+      if (window.utils.isEscPressed(evt)) {
         closeMessage();
       }
     });
@@ -38,7 +38,6 @@
       }
     });
   };
-
 
   window.sendmessage = function (evt, form, eventBox) {
     window.api.upload(new FormData(form),

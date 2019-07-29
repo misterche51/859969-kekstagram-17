@@ -1,7 +1,6 @@
 'use strict';
 //  Модуль для изменения масштаба
 (function () {
-
   /**
    * @description объект со значениями масштаба для фото
    * @prop {Number} MIN -- минимальный предел
@@ -43,7 +42,9 @@
       scalingPhoto(scalableFigure);
     }
   };
-
+  /** сбрасывает масштабирование на дефолтный уровень
+   * @param {Element} scalableFigure объект масштабирования
+  */
   var resetScale = function (scalableFigure) {
     scaleValue.value = SCALE_OF_PHOTO.MAX + '%';
     scalableFigure.removeAttribute('style');

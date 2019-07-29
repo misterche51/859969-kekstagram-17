@@ -56,6 +56,10 @@
     return window.scale.bigger(image);
   };
 
+  var clearTextInput = function (input) {
+    input.value = '';
+  };
+
   /**
    * в завиисимости от разрешенной длины текста меняет цвет поля
    * @param {Element} element ссылка на dom-элемент
@@ -71,7 +75,7 @@
    * @param {evt} evt
   */
   var escapeKeydownHandler = function (evt) {
-    if (evt.keyCode === 27
+    if (window.utils.isEscPressed(evt)
       && evt.target.type !== 'textarea'
       && !evt.target.classList.contains('text__hashtags')) {
       closeForm();
@@ -91,25 +95,27 @@
   };
 
   var isHashtagRepeat = function (arr) {
-    var lowerCasedArr = arr.map(function (it) {
-      return it.toLowerCase();
-    }).sort();
-    for (var j = 0; j < lowerCasedArr.length; j++) {
-      if (lowerCasedArr[j] !== lowerCasedArr[j + 1]) {
-        return false;
+    var hashtags = arr.slice(0);
+    var hashtagsMap = {};
+    var result = true;
+    for (var i = 0; i < hashtags.length; i++) {
+      var element = hashtags[i].toLowerCase();
+      hashtagsMap[element] = !hashtagsMap[element] ? 1 : hashtagsMap[element] + 1;
+      if (hashtagsMap[element] > 1) {
+        result = false;
+        break;
       }
-        return true;
-      }
+    }
+    return result;
   };
 
   var inputHashtagsValidationHandler = function () {
-    inputHashtags.setCustomValidity('');
     var hashtags = inputHashtags.value.split(' ').filter(Boolean);
     if (hashtags.length > MAX_HASHTAGS) {
       inputHashtags.setCustomValidity('Хештегов не должно быть больше 5');
       return;
     }
-    if (isHashtagRepeat(hashtags)) {
+    if (!isHashtagRepeat(hashtags)) {
       inputHashtags.setCustomValidity('Хештеги не должны повторяться');
       return;
     }
@@ -126,9 +132,6 @@
         inputHashtags.setCustomValidity('Превышена максимальная длина хештега (20 символов)');
         return;
       }
-      // } else {
-      //   inputHashtags.setCustomValidity('');
-      // }
     }
     inputHashtags.setCustomValidity('');
   };
@@ -136,20 +139,6 @@
   form.addEventListener('submit', function (evt) {
     window.sendmessage(evt, form, photoCorrectionForm);
   });
-
-  /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
-  var openForm = function () {
-    photoCorrectionForm.classList.remove('hidden');
-    filterList.addEventListener('change', filterHandler);
-    filterRange.classList.add('hidden');
-    filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
-    textAreaComment.addEventListener('input', validateTextLength);
-    inputHashtags.addEventListener('change', inputHashtagsValidationHandler);
-    document.addEventListener('keydown', escapeKeydownHandler);
-    scaleControlSmaller.addEventListener('click', scaleControlSmallerHandler);
-    scaleControlBigger.addEventListener('click', scaleControlBiggerHandler);
-    window.scale.reset(image);
-  };
 
   /** закрывает окно редактирования фотографии */
   var closeForm = function () {
@@ -163,6 +152,7 @@
     scaleControlSmaller.removeEventListener('click', scaleControlSmallerHandler);
     scaleControlBigger.removeEventListener('click', scaleControlBiggerHandler);
   };
+
   /** сбрасывает значение фильтра к стандартному */
   var resetFilterValue = function () {
     filterValue.setAttribute('value', FILTER_DEFAULT_VALUE);
@@ -224,7 +214,6 @@
     } else {
       filterRange.classList.remove('hidden');
     }
-
     rebootFilter();
     /** новый класс в зависимости от значиния выбранного инпута */
     var className = 'effects__preview--' + value;
@@ -280,10 +269,22 @@
     filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
   };
 
-
   buttonClose.addEventListener('click', closeForm);
 
-  window.form = {
-    open: openForm,
+  /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
+  window.openForm = function () {
+    clearTextInput(inputHashtags);
+    clearTextInput(textAreaComment);
+    photoCorrectionForm.classList.remove('hidden');
+    filterList.addEventListener('change', filterHandler);
+    filterRange.classList.add('hidden');
+    filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
+    textAreaComment.addEventListener('input', validateTextLength);
+    inputHashtags.addEventListener('change', inputHashtagsValidationHandler);
+    document.addEventListener('keydown', escapeKeydownHandler);
+    scaleControlSmaller.addEventListener('click', scaleControlSmallerHandler);
+    scaleControlBigger.addEventListener('click', scaleControlBiggerHandler);
+    window.scale.reset(image);
+    rebootFilter();
   };
 })();

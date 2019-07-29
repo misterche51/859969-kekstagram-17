@@ -3,6 +3,7 @@
 (function () {
   /** ссылка на сервер */
   var TIMEOUT = 15000;
+  var TIMEOUT_2 = 5;
   var SUCCESS_CODE = 200;
   var URL = 'https://js.dump.academy/kekstagram';
 
@@ -40,6 +41,7 @@
 
   var upload = function (data, onSuccess, onError) {
     var xhr = createRequest(onSuccess, onError);
+    xhr.timeout = TIMEOUT_2;
     xhr.open('POST', URL);
     xhr.send(data);
   };
