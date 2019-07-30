@@ -17,6 +17,9 @@
     MIN: 1,
     MAX: 20,
   };
+
+  var inputKeydownHandler = new Event('change', {bubbles: true});
+
   /** input type="file" для загрузки изображений в сервис */
   var inputPhoto = document.querySelector('#upload-file');
   /** div с элементами для редактирования загруженного файла */
@@ -161,10 +164,6 @@
   var resetImageClassList = function () {
     image.classList = 'img-upload__preview';
   };
-  /** удаляет стиль фильтра у фото */
-  var deleteImageInlineStyle = function () {
-    image.removeAttribute('style');
-  };
   /**
    * функция подставляет css свойство к изобржению в соответствии с выбранным фильтром
    * @param {Number} prop отношение расположеня пина к длине шкалы
@@ -187,15 +186,14 @@
         image.style.filter = 'brightness(' + (1 + 2 * prop) + ')';
         break;
       default:
-        image.removeAttribute('style');
+        resetImageClassList();
+        image.style.filter = '';
     }
   };
   /** общий сброс стилей с фото */
   var rebootFilter = function () {
-    image.removeAttribute('style');
     resetFilterValue();
     resetImageClassList();
-    deleteImageInlineStyle();
     filterPin.style.left = filterPin.parentNode.offsetWidth + 'px';
     effectLine.style.width = filterPin.parentNode.offsetWidth + 'px';
   };
@@ -207,6 +205,9 @@
    * @param {evt} evt предполагается change на input type=radio
    */
   var filterHandler = function (evt) {
+    if (window.utils.isEnterPressed(evt)) {
+      evt.preventDefault();
+    }
     var value = evt.target.value;
     // в зависимости от фильтра показываем или нет шкалу глубины фильтрации
     if (value === 'none') {
@@ -254,6 +255,7 @@
         filterPin.style.left = newPinPosition + 'px';
         effectLine.style.width = newPinPosition + 'px';
       }
+      filterPin.addEventListener('mouseout', filterPinMouseUpHandler);
     };
 
     var filterPinMouseUpHandler = function (upEvt) {
@@ -264,6 +266,7 @@
       switcher(propAtUpMoment);
       filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
       filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
+      filterPin.removeEventListener('mouseout', filterPinMouseUpHandler);
     };
     filterPin.addEventListener('mousemove', filterPinMouseMoveHandler);
     filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
@@ -271,12 +274,23 @@
 
   buttonClose.addEventListener('click', closeForm);
 
+  var filterListKeydownHandler = function (evt) {
+    if (window.utils.isEnterPressed(evt)) {
+      evt.preventDefault();
+      var inputName = evt.target.getAttribute('for');
+      var selector = '#' + inputName;
+      var input = document.querySelector(selector);
+      input.dispatchEvent(inputKeydownHandler);
+    }
+  };
+
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
   window.openForm = function () {
     clearTextInput(inputHashtags);
     clearTextInput(textAreaComment);
     photoCorrectionForm.classList.remove('hidden');
     filterList.addEventListener('change', filterHandler);
+    filterList.addEventListener('keydown', filterListKeydownHandler);
     filterRange.classList.add('hidden');
     filterPin.addEventListener('mousedown', filterPinMouseDownHandler);
     textAreaComment.addEventListener('input', validateTextLength);
