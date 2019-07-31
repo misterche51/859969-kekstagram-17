@@ -38,6 +38,7 @@
   var filterList = photoCorrectionForm.querySelector('.effects__list');
   /** div с фото */
   var image = photoCorrectionForm.querySelector('.img-upload__preview ');
+  var imagePic = image.querySelector('img');
   /** переменная хранит название фильтра */
   var currentEffectName = null;
   /** button type="button" уменьшает масштаб */
@@ -154,6 +155,7 @@
     document.removeEventListener('keydown', escapeKeydownHandler);
     scaleControlSmaller.removeEventListener('click', scaleControlSmallerHandler);
     scaleControlBigger.removeEventListener('click', scaleControlBiggerHandler);
+    imagePic.src = 'img/upload-default-image.jpg';
   };
 
   /** сбрасывает значение фильтра к стандартному */
@@ -280,6 +282,7 @@
       var inputName = evt.target.getAttribute('for');
       var selector = '#' + inputName;
       var input = document.querySelector(selector);
+      input.checked = true;
       input.dispatchEvent(inputKeydownHandler);
     }
   };

@@ -137,6 +137,7 @@
 
 
   window.api.load(successHandler, errorHandler);
+  inputPhoto.addEventListener('change', window.downloadPhotoPreview);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
   inputPhoto.addEventListener('change', window.openForm);
   //  навешиваемся на секшн, чтобы запустить работу фильтров при клике
