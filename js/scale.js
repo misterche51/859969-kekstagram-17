@@ -1,7 +1,6 @@
 'use strict';
 //  Модуль для изменения масштаба
 (function () {
-
   /**
    * @description объект со значениями масштаба для фото
    * @prop {Number} MIN -- минимальный предел
@@ -15,21 +14,22 @@
   var STEP_OF_SCALE = 25;
 
   /** input type="text" отоборажает масштаб в % */
-  var scaleValue = document.querySelector('.scale__control--value');
+  var inputScaleValue = document.querySelector('.scale__control--value');
 
   /** изменяет значение стилей, меняя масштаб фото
   *  @param {Element} scalableFigure объект масштабирования
   */
   var scalingPhoto = function (scalableFigure) {
-    scalableFigure.style.transform = 'scale(' + parseInt(scaleValue.value, 10) / 100 + ')';
+    scalableFigure.style.transform = 'scale(' + parseInt(inputScaleValue.getAttribute('value'), 10) / 100 + ')';
   };
 
   /** уменьшает масштаб у фото, отображая значение в инпуте
   *  @param {Element} scalableFigure объект масштабирования
   */
   var scaleControlSmallerClickHandler = function (scalableFigure) {
-    if (scaleValue.value !== SCALE_OF_PHOTO.MIN + '%') {
-      scaleValue.value = parseInt(scaleValue.value, 10) - STEP_OF_SCALE + '%';
+    if (inputScaleValue.value !== SCALE_OF_PHOTO.MIN + '%') {
+      var value = parseInt(inputScaleValue.value, 10) - STEP_OF_SCALE + '%';
+      inputScaleValue.setAttribute('value', value);
       scalingPhoto(scalableFigure);
     }
   };
@@ -38,15 +38,26 @@
   * @param {Element} scalableFigure объект масштабирования
   */
   var scaleControlBiggerClickHandler = function (scalableFigure) {
-    if (scaleValue.value !== SCALE_OF_PHOTO.MAX + '%') {
-      scaleValue.value = parseInt(scaleValue.value, 10) + STEP_OF_SCALE + '%';
+    if (inputScaleValue.value !== SCALE_OF_PHOTO.MAX + '%') {
+      var value = parseInt(inputScaleValue.value, 10) + STEP_OF_SCALE + '%';
+      inputScaleValue.setAttribute('value', value);
       scalingPhoto(scalableFigure);
     }
+  };
+  /** сбрасывает масштабирование на дефолтный уровень
+   * @param {Element} scalableFigure объект масштабирования
+  */
+  var resetScale = function (scalableFigure) {
+    // inputScaleValue.value = SCALE_OF_PHOTO.MAX + '%';
+    inputScaleValue.setAttribute('value', SCALE_OF_PHOTO.MAX + '%');
+
+    scalableFigure.removeAttribute('style');
   };
 
   // экспортирую методы в глобальную облатсь видимости
   window.scale = {
     smaller: scaleControlSmallerClickHandler,
     bigger: scaleControlBiggerClickHandler,
+    reset: resetScale,
   };
 })();

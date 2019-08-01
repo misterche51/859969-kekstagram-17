@@ -16,9 +16,9 @@
 
   /** сбрасывает стиль активности со всех батонов */
   var dropActiveStyle = function () {
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].classList.remove('img-filters__button--active');
-    }
+    buttons.forEach(function (element) {
+      element.classList.remove('img-filters__button--active');
+    });
   };
   /** функция описывается работу фильтров галереи
    * @param {evt} evt
@@ -48,20 +48,20 @@
    * @param {Array} arr
    * @return {Array}
   */
-  var newestItems = function (arr) {
+  var getNewestItems = function (arr) {
     return window.utils.getShuffleArray(arr).slice(0, 10);
   };
   /** Функция создает отсортированный массив по количеству комменатриев
    * @param {Array} arr
    * @return {Array}
   */
-  var hottestItems = function (arr) {
+  var getHottestItems = function (arr) {
     return arr.slice(0).sort(sortingByComments);
   };
   /** мапа для реализации отображения нужной галереи в зависимости от выбранного фильтпа */
   var idToRenderGallery = {
-    'new': newestItems,
-    'discussed': hottestItems
+    'new': getNewestItems,
+    'discussed': getHottestItems
   };
 
   //  --------------------------------------------------
@@ -69,9 +69,9 @@
   /** очищает галерею от всех фотографий */
   var deletePictures = function () {
     var pictures = document.querySelectorAll('.picture');
-    for (var i = 0; i < pictures.length; i++) {
-      pictures[i].remove();
-    }
+    pictures.forEach(function (element) {
+      element.remove();
+    });
   };
   /**
    * функция выполняется при успешной загрузке данных с сервера
@@ -113,50 +113,34 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-
-  var MIN_COMMENTS = 5;
-  var COMMENTS_GAP = 5;
-  var currentLastComment;
-
-  var hideComments = function () {
-    var bigPictureOverlay = document.querySelector('.big-picture');
-    var comments = bigPictureOverlay.querySelectorAll('.social__comment');
-    var buttonMoreComments = bigPictureOverlay.querySelector('.comments-loader');
-    for (var i = MIN_COMMENTS; i < comments.length; i++) {
-      comments[i].classList.add('visually-hidden');
-    }
-    currentLastComment = MIN_COMMENTS + 1;
-    buttonMoreComments.addEventListener('click', function () {
-      var nextComments = currentLastComment + COMMENTS_GAP;
-      if (nextComments >= comments.length) {
-        for (var j = currentLastComment; j < comments.length; j++) {
-          comments[j].classList.remove('visually-hidden');
-          buttonMoreComments.classList.add('visually-hidden');
-        }
-      } else {
-        for (var k = currentLastComment; k < nextComments; k++) {
-          comments[k].classList.remove('visually-hidden');
-        }
-        currentLastComment = nextComments + 1;
-      }
-    });
+  var showBigPicture = function (index) {
+    pictureOverlay.classList.remove('hidden');
+    window.renderBigPicture(currentGalleryItems[index]);
   };
 
   var galleryItemClickHandler = function (evt) {
     var isPicture = evt.target.classList.contains('picture__img');
     if (isPicture) {
       var index = evt.target.dataset.index;
-      pictureOverlay.classList.remove('hidden');
-      window.bigpicture.renderBigPicture(currentGalleryItems[index]);
+      showBigPicture(index);
     }
-    hideComments();
   };
 
+  var galleryItemKeydownHandler = function (evt) {
+    var isPicture = evt.target.classList.contains('picture');
+    if (isPicture && window.utils.isEnterPressed(evt)) {
+      evt.preventDefault();
+      var index = evt.target.querySelector('img').dataset.index;
+      showBigPicture(index);
+    }
+  };
 
   window.api.load(successHandler, errorHandler);
+  inputPhoto.addEventListener('change', window.downloadPhotoPreview);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
-  inputPhoto.addEventListener('change', window.form.open);
+  inputPhoto.addEventListener('change', window.openForm);
   //  навешиваемся на секшн, чтобы запустить работу фильтров при клике
   filters.addEventListener('click', filtrationHandler);
   gallery.addEventListener('click', galleryItemClickHandler);
+  gallery.addEventListener('keydown', galleryItemKeydownHandler);
 })();

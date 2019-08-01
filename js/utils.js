@@ -1,17 +1,21 @@
 'use strict';
 (function () {
+  var TIMEOUT_VALUE = 500;
+  var ESC_KEYCODE = 27;
+  var ENTER_KEYCODE = 13;
+
+
   /** вспомогательная переменная для debounceHandler */
   var lastTimeout;
-  var TIMEOUT_VALUE = 500;
   /** функция удаления дребезжания
- * @param {callback} f
+ * @param {callback} callback
  */
-  var debounceHandler = function (f) {
+  var debounceHandler = function (callback) {
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
     lastTimeout = window.setTimeout(function () {
-      f();
+      callback();
     }, TIMEOUT_VALUE);
   };
 
@@ -37,9 +41,19 @@
     return Math.floor(Math.random() * (max)) + min;
   };
 
+  var isEscPressed = function (evt) {
+    return evt.keyCode === ESC_KEYCODE;
+  };
+
+  var isEnterPressed = function (evt) {
+    return evt.keyCode === ENTER_KEYCODE;
+  };
+
   window.utils = {
     debounceHandler: debounceHandler,
     getShuffleArray: getShuffleArray,
     getRandomNumber: getRandomNumber,
+    isEscPressed: isEscPressed,
+    isEnterPressed: isEnterPressed,
   };
 })();

@@ -7,7 +7,7 @@
   var URL = 'https://js.dump.academy/kekstagram';
 
 
-  var ajax = function (onSuccess, onError) {
+  var createRequest = function (onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
@@ -33,13 +33,14 @@
   };
 
   var load = function (onSuccess, onError) {
-    var xhr = ajax(onSuccess, onError);
+    var xhr = createRequest(onSuccess, onError);
     xhr.open('GET', URL + '/data');
     xhr.send();
   };
 
   var upload = function (data, onSuccess, onError) {
-    var xhr = ajax(onSuccess, onError);
+    var xhr = createRequest(onSuccess, onError);
+    xhr.timeout = 5;
     xhr.open('POST', URL);
     xhr.send(data);
   };
