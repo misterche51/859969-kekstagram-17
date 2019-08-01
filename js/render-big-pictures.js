@@ -8,6 +8,7 @@
   var stopComment = null;
   var currentComments = null;
 
+  var body = document.querySelector('body');
   var pictureOverlay = document.querySelector('.big-picture');
   var pictureImage = pictureOverlay.querySelector('.big-picture__img');
   /** кнопка "загрузить еще комментариев" */
@@ -28,6 +29,7 @@
     document.removeEventListener('keydown', escapeKeydownHandler);
     closePictureOverlayButton.removeEventListener('click', closePictureOverlay);
     buttonMoreComments.removeEventListener('click', buttonMoreComments.fn);
+    body.removeAttribute('class');
   };
 
   // вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
@@ -114,6 +116,7 @@
         addComments(comments);
       });
     }
+    body.setAttribute('class', 'modal-open');
     document.addEventListener('keydown', escapeKeydownHandler);
     closePictureOverlayButton.addEventListener('click', closePictureOverlay);
   };

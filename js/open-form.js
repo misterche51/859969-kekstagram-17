@@ -62,6 +62,7 @@
 
   var clearTextInput = function (input) {
     input.value = '';
+    deleteInvalidBorder(input);
   };
 
   /**
@@ -70,7 +71,7 @@
    */
   var validateTextLength = function () {
     if (textAreaComment.value.length === ALLOWED_TEXT_LENGHT) {
-      textAreaComment.style.background = 'red';
+      setInvalidBorder(textAreaComment);
     } else {
       textAreaComment.removeAttribute('style');
     }
@@ -91,11 +92,11 @@
   };
 
   var isTooShort = function (el) {
-    return el.length > HASHTAG_LENGTH.MIN;
+    return el.length < HASHTAG_LENGTH.MIN;
   };
 
   var isTooBig = function (el) {
-    return el.length < HASHTAG_LENGTH.MAX;
+    return el.length >= HASHTAG_LENGTH.MAX;
   };
 
   var isHashtagRepeat = function (arr) {
@@ -113,32 +114,48 @@
     return result;
   };
 
+  var setInvalidBorder = function (element) {
+    element.style.outline = '2px solid red';
+  };
+
+  var deleteInvalidBorder = function (element) {
+    element.removeAttribute('style');
+  };
+
   var inputHashtagsValidationHandler = function () {
     var hashtags = inputHashtags.value.split(' ').filter(Boolean);
     if (hashtags.length > MAX_HASHTAGS) {
       inputHashtags.setCustomValidity('Хештегов не должно быть больше 5');
+      setInvalidBorder(inputHashtags);
       return;
     }
     if (!isHashtagRepeat(hashtags)) {
       inputHashtags.setCustomValidity('Хештеги не должны повторяться');
+      setInvalidBorder(inputHashtags);
       return;
     }
+
     for (var i = 0; i < hashtags.length; i++) {
       if (!isHashtag(hashtags[i])) {
         inputHashtags.setCustomValidity('Хештег должен начинаться с #');
+        setInvalidBorder(inputHashtags);
         return;
       }
-      if (!isTooShort(hashtags[i])) {
+      if (isTooShort(hashtags[i])) {
         inputHashtags.setCustomValidity('Хештег должен быть длиннее чем 1 символ #');
+        setInvalidBorder(inputHashtags);
         return;
       }
-      if (!isTooBig(hashtags[i])) {
+      if (isTooBig(hashtags[i])) {
         inputHashtags.setCustomValidity('Превышена максимальная длина хештега (20 символов)');
+        setInvalidBorder(inputHashtags);
         return;
       }
     }
     inputHashtags.setCustomValidity('');
+    deleteInvalidBorder(inputHashtags);
   };
+
 
   form.addEventListener('submit', function (evt) {
     window.sendmessage(evt, form, photoCorrectionForm);
@@ -146,6 +163,7 @@
 
   /** закрывает окно редактирования фотографии */
   var closeForm = function () {
+    inputHashtags.removeAttribute('style');
     photoCorrectionForm.classList.add('hidden');
     inputPhoto.value = null;
     filterList.removeEventListener('change', filterHandler);

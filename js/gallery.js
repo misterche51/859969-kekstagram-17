@@ -135,7 +135,6 @@
     }
   };
 
-
   window.api.load(successHandler, errorHandler);
   inputPhoto.addEventListener('change', window.downloadPhotoPreview);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
