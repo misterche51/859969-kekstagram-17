@@ -19,7 +19,7 @@
   /** изменяет значение стилей, меняя масштаб фото
   *  @param {Element} scalableFigure объект масштабирования
   */
-  var scalePhoto = function (scalableFigure) {
+  var setScale = function (scalableFigure) {
     scalableFigure.style.transform = 'scale(' + parseInt(inputScaleValue.getAttribute('value'), 10) / 100 + ')';
   };
 
@@ -30,7 +30,7 @@
     if (inputScaleValue.value !== SCALE_OF_PHOTO.MIN + '%') {
       var value = parseInt(inputScaleValue.value, 10) - STEP_OF_SCALE + '%';
       inputScaleValue.setAttribute('value', value);
-      scalePhoto(scalableFigure);
+      setScale(scalableFigure);
     }
   };
 
@@ -41,7 +41,7 @@
     if (inputScaleValue.value !== SCALE_OF_PHOTO.MAX + '%') {
       var value = parseInt(inputScaleValue.value, 10) + STEP_OF_SCALE + '%';
       inputScaleValue.setAttribute('value', value);
-      scalePhoto(scalableFigure);
+      setScale(scalableFigure);
     }
   };
   /** сбрасывает масштабирование на дефолтный уровень

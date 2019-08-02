@@ -188,7 +188,7 @@
    * функция подставляет css свойство к изобржению в соответствии с выбранным фильтром
    * @param {Number} prop отношение расположеня пина к длине шкалы
    */
-  var switchFilter = function (prop) {
+  var updateFilter = function (prop) {
     switch (currentEffectName) {
       case 'chrome':
         image.style.filter = 'grayscale(' + prop + ')';
@@ -242,7 +242,7 @@
     currentEffectName = value;
 
     var prop = FILTER_DEFAULT_VALUE / 100;
-    switchFilter(prop);
+    updateFilter(prop);
   };
   var filterPinMouseDownHandler = function (downEvt) {
     downEvt.preventDefault();
@@ -252,14 +252,14 @@
     var value = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
     filterValue.setAttribute('value', value);
     var prop = value / 100;
-    switchFilter(prop);
+    updateFilter(prop);
 
     var filterPinMouseMoveHandler = function (moveEvt) {
       moveEvt.preventDefault();
       var valueAtMoveMoment = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
       filterValue.setAttribute('value', valueAtMoveMoment);
       var propAtMoveMoment = valueAtMoveMoment / 100;
-      switchFilter(propAtMoveMoment);
+      updateFilter(propAtMoveMoment);
       /** ищем перемещение */
       var shift = startPosition - moveEvt.clientX;
       /** помещаем новые координаты в старт */
@@ -283,7 +283,7 @@
       var valueAtUpMoment = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
       filterValue.setAttribute('value', valueAtUpMoment);
       var propAtUpMoment = valueAtUpMoment / 100;
-      switchFilter(propAtUpMoment);
+      updateFilter(propAtUpMoment);
       filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
       filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
       filterPin.removeEventListener('mouseout', filterPinMouseUpHandler);
