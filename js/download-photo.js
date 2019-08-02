@@ -8,7 +8,7 @@
   var previewBox = document.querySelector('.img-upload__preview');
   var downloadedPhotoPreview = previewBox.querySelector('img');
 
-  window.downloadPhotoPreview = function () {
+  window.downloadPhotoPreviewHandler = function () {
     var file = inputPhoto.files[0];
     var fileName = file.name.toLowerCase();
 

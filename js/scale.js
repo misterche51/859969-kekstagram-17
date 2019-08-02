@@ -19,7 +19,7 @@
   /** изменяет значение стилей, меняя масштаб фото
   *  @param {Element} scalableFigure объект масштабирования
   */
-  var scalingPhoto = function (scalableFigure) {
+  var scalePhoto = function (scalableFigure) {
     scalableFigure.style.transform = 'scale(' + parseInt(inputScaleValue.getAttribute('value'), 10) / 100 + ')';
   };
 
@@ -30,7 +30,7 @@
     if (inputScaleValue.value !== SCALE_OF_PHOTO.MIN + '%') {
       var value = parseInt(inputScaleValue.value, 10) - STEP_OF_SCALE + '%';
       inputScaleValue.setAttribute('value', value);
-      scalingPhoto(scalableFigure);
+      scalePhoto(scalableFigure);
     }
   };
 
@@ -41,16 +41,14 @@
     if (inputScaleValue.value !== SCALE_OF_PHOTO.MAX + '%') {
       var value = parseInt(inputScaleValue.value, 10) + STEP_OF_SCALE + '%';
       inputScaleValue.setAttribute('value', value);
-      scalingPhoto(scalableFigure);
+      scalePhoto(scalableFigure);
     }
   };
   /** сбрасывает масштабирование на дефолтный уровень
    * @param {Element} scalableFigure объект масштабирования
   */
   var resetScale = function (scalableFigure) {
-    // inputScaleValue.value = SCALE_OF_PHOTO.MAX + '%';
     inputScaleValue.setAttribute('value', SCALE_OF_PHOTO.MAX + '%');
-
     scalableFigure.removeAttribute('style');
   };
 

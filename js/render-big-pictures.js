@@ -20,14 +20,14 @@
     .content
     .querySelector('.social__comment');
   /** кнопка закрыть окно с картинкой */
-  var closePictureOverlayButton = pictureOverlay.querySelector('.big-picture__cancel');
+  var closePictureOverlayHandlerButton = pictureOverlay.querySelector('.big-picture__cancel');
 
 
   /** функция закрывания окна с картинкой */
-  var closePictureOverlay = function () {
+  var closePictureOverlayHandler = function () {
     pictureOverlay.classList.add('hidden');
     document.removeEventListener('keydown', escapeKeydownHandler);
-    closePictureOverlayButton.removeEventListener('click', closePictureOverlay);
+    closePictureOverlayHandlerButton.removeEventListener('click', closePictureOverlayHandler);
     buttonMoreComments.removeEventListener('click', buttonMoreComments.fn);
     body.removeAttribute('class');
   };
@@ -35,7 +35,7 @@
   // вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
   var escapeKeydownHandler = function (evt) {
     if (window.utils.isEscPressed(evt) && evt.target.type !== 'text') {
-      closePictureOverlay();
+      closePictureOverlayHandler();
     }
   };
 
@@ -118,6 +118,6 @@
     }
     body.setAttribute('class', 'modal-open');
     document.addEventListener('keydown', escapeKeydownHandler);
-    closePictureOverlayButton.addEventListener('click', closePictureOverlay);
+    closePictureOverlayHandlerButton.addEventListener('click', closePictureOverlayHandler);
   };
 })();

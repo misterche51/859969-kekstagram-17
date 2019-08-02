@@ -16,7 +16,7 @@
   var formSendHandler = function (resultTemplate, form) {
     form.classList.add('hidden');
     renderMessage(resultTemplate);
-    var closeMessage = function () {
+    var closeMessageHandler = function () {
       mainContainer.removeChild(mainContainer.firstChild);
     };
     var overlay = document.querySelector('section');
@@ -24,22 +24,22 @@
     var headline = overlay.querySelector('h2');
     var buttons = mainContainer.firstChild.querySelectorAll('button');
     buttons.forEach(function (element) {
-      element.addEventListener('click', closeMessage);
+      element.addEventListener('click', closeMessageHandler);
     });
 
     document.addEventListener('keydown', function (evt) {
       if (window.utils.isEscPressed(evt)) {
-        closeMessage();
+        closeMessageHandler();
       }
     });
     overlay.addEventListener('click', function (evt) {
       if (evt.target !== messageBox && evt.target !== headline) {
-        closeMessage();
+        closeMessageHandler();
       }
     });
   };
 
-  window.sendmessage = function (evt, form, eventBox) {
+  window.sendMessage = function (evt, form, eventBox) {
     window.api.upload(new FormData(form),
         function () {
           formSendHandler(successTemplate, eventBox);

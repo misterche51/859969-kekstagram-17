@@ -16,8 +16,9 @@
   */
   var renderItem = function (item, index) {
     var newPicture = pictureTemplate.cloneNode(true);
-    newPicture.querySelector('.picture__img').src = item.url;
-    newPicture.querySelector('.picture__img').dataset.index = index;
+    var newPictureImg = newPicture.querySelector('.picture__img');
+    newPictureImg.src = item.url;
+    newPictureImg.dataset.index = index;
     newPicture.querySelector('.picture__comments').textContent = item.comments.length;
     newPicture.querySelector('.picture__likes').textContent = item.likes;
 

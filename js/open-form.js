@@ -83,7 +83,7 @@
     if (window.utils.isEscPressed(evt)
       && evt.target.type !== 'textarea'
       && !evt.target.classList.contains('text__hashtags')) {
-      closeForm();
+      closeFormHandler();
     }
   };
 
@@ -158,11 +158,11 @@
 
 
   form.addEventListener('submit', function (evt) {
-    window.sendmessage(evt, form, photoCorrectionForm);
+    window.sendMessage(evt, form, photoCorrectionForm);
   });
 
   /** закрывает окно редактирования фотографии */
-  var closeForm = function () {
+  var closeFormHandler = function () {
     inputHashtags.removeAttribute('style');
     photoCorrectionForm.classList.add('hidden');
     inputPhoto.value = null;
@@ -188,7 +188,7 @@
    * функция подставляет css свойство к изобржению в соответствии с выбранным фильтром
    * @param {Number} prop отношение расположеня пина к длине шкалы
    */
-  var switcher = function (prop) {
+  var switchFilter = function (prop) {
     switch (currentEffectName) {
       case 'chrome':
         image.style.filter = 'grayscale(' + prop + ')';
@@ -242,7 +242,7 @@
     currentEffectName = value;
 
     var prop = FILTER_DEFAULT_VALUE / 100;
-    switcher(prop);
+    switchFilter(prop);
   };
   var filterPinMouseDownHandler = function (downEvt) {
     downEvt.preventDefault();
@@ -252,14 +252,14 @@
     var value = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
     filterValue.setAttribute('value', value);
     var prop = value / 100;
-    switcher(prop);
+    switchFilter(prop);
 
     var filterPinMouseMoveHandler = function (moveEvt) {
       moveEvt.preventDefault();
       var valueAtMoveMoment = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
       filterValue.setAttribute('value', valueAtMoveMoment);
       var propAtMoveMoment = valueAtMoveMoment / 100;
-      switcher(propAtMoveMoment);
+      switchFilter(propAtMoveMoment);
       /** ищем перемещение */
       var shift = startPosition - moveEvt.clientX;
       /** помещаем новые координаты в старт */
@@ -283,7 +283,7 @@
       var valueAtUpMoment = (filterPin.offsetLeft / filterLineWidth).toFixed(2) * 100;
       filterValue.setAttribute('value', valueAtUpMoment);
       var propAtUpMoment = valueAtUpMoment / 100;
-      switcher(propAtUpMoment);
+      switchFilter(propAtUpMoment);
       filterPin.removeEventListener('mousemove', filterPinMouseMoveHandler);
       filterPin.removeEventListener('mouseup', filterPinMouseUpHandler);
       filterPin.removeEventListener('mouseout', filterPinMouseUpHandler);
@@ -292,7 +292,7 @@
     filterPin.addEventListener('mouseup', filterPinMouseUpHandler);
   };
 
-  buttonClose.addEventListener('click', closeForm);
+  buttonClose.addEventListener('click', closeFormHandler);
 
   var filterListKeydownHandler = function (evt) {
     if (window.utils.isEnterPressed(evt)) {
@@ -306,7 +306,7 @@
   };
 
   /** открывает окно редактирования фотографии и вешает прослушку на нажатие esc для закрытия */
-  window.openForm = function () {
+  window.openFormHandler = function () {
     clearTextInput(inputHashtags);
     clearTextInput(textAreaComment);
     photoCorrectionForm.classList.remove('hidden');

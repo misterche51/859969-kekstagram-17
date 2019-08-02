@@ -136,9 +136,9 @@
   };
 
   window.api.load(successHandler, errorHandler);
-  inputPhoto.addEventListener('change', window.downloadPhotoPreview);
+  inputPhoto.addEventListener('change', window.downloadPhotoPreviewHandler);
   // навешиваемся на кнопку, чтобы открыть форму изменения загружаемого фото
-  inputPhoto.addEventListener('change', window.openForm);
+  inputPhoto.addEventListener('change', window.openFormHandler);
   //  навешиваемся на секшн, чтобы запустить работу фильтров при клике
   filters.addEventListener('click', filtrationHandler);
   gallery.addEventListener('click', galleryItemClickHandler);
