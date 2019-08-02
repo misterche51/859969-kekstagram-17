@@ -32,7 +32,6 @@
     body.removeAttribute('class');
   };
 
-  // вот этот блок - копипаста из form, я пробовал переписать в модуль, чтобы был коллбек внутри, но не получается пока что
   var escapeKeydownHandler = function (evt) {
     if (window.utils.isEscPressed(evt) && evt.target.type !== 'text') {
       closePictureOverlayHandler();
